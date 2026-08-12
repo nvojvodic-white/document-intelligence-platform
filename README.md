@@ -7,9 +7,6 @@ Forked from `agent-platform` (agentic RAG over a Tolkien lore corpus). The corpu
 it now lives in S3 as objects rather than on disk as fixtures, so "connect a datasource" is a real
 path rather than a fixture pretending to be one.
 
-- [PLAN.md](PLAN.md) — the plan, written before any code
-- [WRITEUP.md](WRITEUP.md) — what was built, what was cut, whether the plan survived
-- [CUTS.md](CUTS.md) — every cut, logged when it was made
 - [docs/architecture.md](docs/architecture.md) — architecture, data flow, sync lifecycle
 - [NOTICE.md](NOTICE.md) — third-party corpus attribution and licence status
 
