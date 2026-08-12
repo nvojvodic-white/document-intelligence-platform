@@ -303,6 +303,58 @@ def get_chunk_texts(user_id: str, chunk_ids: Iterable[str]) -> dict[str, str]:
     return out
 
 
+def get_user_chunks(user_id: str) -> list[dict[str, Any]]:
+    """Every chunk this user possesses, for building their sparse index.
+
+    Scoped through user_blobs, so the BM25 half of hybrid retrieval is built
+    from exactly the same content the dense half can see. A sparse index built
+    over all chunks globally would be a leak with extra steps.
+    """
+    with db.connect() as c:
+        rows = _rows(
+            c.execute(
+                "SELECT c.sha256, c.ordinal, c.text FROM chunks c "
+                "JOIN user_blobs ub ON ub.sha256 = c.sha256 "
+                "WHERE ub.user_id = ? ORDER BY c.sha256, c.ordinal",
+                (user_id,),
+            )
+        )
+    for r in rows:
+        r["chunk_id"] = f"{r['sha256']}:{r['ordinal']}"
+    return rows
+
+
+def get_attribution(user_id: str, sha256s: Iterable[str]) -> dict[str, dict[str, Any]]:
+    """Map content back to what this user calls it, for citations.
+
+    Attribution is per-user by construction: the same bytes cite as a different
+    filename for a different user, and neither can see the other's naming. When
+    a user holds the same content under several names, the first live row wins
+    - any of them is a correct citation for that content.
+    """
+    shas = [s for s in dict.fromkeys(sha256s) if s]
+    if not shas:
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    with db.connect() as c:
+        for i in range(0, len(shas), 400):
+            batch = shas[i : i + 400]
+            placeholders = ",".join("?" * len(batch))
+            rows = _rows(
+                c.execute(
+                    "SELECT f.sha256, f.id AS file_id, f.provider_key, "
+                    "f.directory_id FROM files f "
+                    f"WHERE f.user_id = ? AND f.deleted_at IS NULL "
+                    f"AND f.sha256 IN ({placeholders}) "
+                    "ORDER BY f.provider_key",
+                    [user_id, *batch],
+                )
+            )
+            for r in rows:
+                out.setdefault(r["sha256"], r)
+    return out
+
+
 # --- embedding cache (global, keyed by content + version) -------------------
 
 

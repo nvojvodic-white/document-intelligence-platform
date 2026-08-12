@@ -17,7 +17,7 @@ Graph:
                                                           synthesize -> END
 """
 import time
-from functools import lru_cache, wraps
+from functools import wraps
 from operator import add
 from typing import Annotated, Literal, TypedDict
 
@@ -29,7 +29,7 @@ from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
 from app.rag.chain.prompts import rag_prompt
-from app.rag.retrieval.vectorstore import get_retriever
+from app.rag.retrieval.user_scoped import get_user_retriever
 
 
 def timed(name: str):
@@ -59,6 +59,10 @@ Grade = Literal["relevant", "partial", "poor"]
 
 
 class AgentState(TypedDict, total=False):
+    # The verified caller. Set by the endpoint from the token and read by the
+    # retrieve node; there is no default and no fallback, so a graph invoked
+    # without it fails loudly rather than searching something arbitrary.
+    user_id: str
     question: str
     # Post-coreference rewrite of `question` for multi-turn. Set by
     # resolve_query in graph_streaming. Downstream nodes read
@@ -146,28 +150,33 @@ def classify_query(state: AgentState) -> dict:
 
 # --- retrieve ---------------------------------------------------------------
 
-@lru_cache(maxsize=256)
-def _cached_retrieve(question: str, retriever_kind: str, k: int) -> tuple:
-    """Per-(question, route, k) retrieval cache. Tuple return so it's hashable,
-    though we only need the tuple-ness for the LRU value; the key is the args.
-    Reruns and demos hit the same probes; this drops repeat latency to ~0ms."""
-    return tuple(get_retriever(k=k, kind=retriever_kind).invoke(question))
+# The pre-fork build cached retrieval on (question, kind, k). That cache cannot
+# survive multi-tenancy: the key has no user in it, so the second user to ask a
+# question would be served the first user's documents. Removed rather than
+# re-keyed - per-user hit rates on a demo corpus would not pay for the risk.
+def build_retriever(state: AgentState):
+    """Build the retriever for this state's route, bound to this state's user."""
+    user_id = state.get("user_id")
+    if not user_id:
+        raise ValueError("retrieval requires a user_id in the graph state")
+    kind = ROUTE_TO_RETRIEVER[state["route"]]
+    if kind == "hyde":
+        from app.rag.retrieval.hyde import get_hyde_retriever
+
+        return get_hyde_retriever(user_id, k=4), kind
+    return get_user_retriever(user_id, k=4, kind=kind), kind
 
 
 @timed("retrieve")
 def retrieve(state: AgentState) -> dict:
-    route = state["route"]
     question = state.get("rewritten_question") or state["question"]
-    retriever_kind = ROUTE_TO_RETRIEVER[route]
-    before = _cached_retrieve.cache_info().hits
-    docs = list(_cached_retrieve(question, retriever_kind, 4))
-    cache_hit = _cached_retrieve.cache_info().hits > before
+    retriever, kind = build_retriever(state)
+    docs = list(retriever.invoke(question))
     return {
         "documents": docs,
         "trace": [
-            f"retrieved {len(docs)} docs via {retriever_kind} "
-            f"(attempt {state.get('attempt', 0) + 1}"
-            f"{', cache hit' if cache_hit else ''})"
+            f"retrieved {len(docs)} docs via {kind} "
+            f"(attempt {state.get('attempt', 0) + 1})"
         ],
     }
 

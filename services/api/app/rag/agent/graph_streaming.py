@@ -36,7 +36,7 @@ from app.rag.agent.graph import (
     AgentState,
     Classification,
     GradeOutput,
-    ROUTE_TO_RETRIEVER,
+    build_retriever,
     classifier_llm,
     classify_prompt,
     decide_next,
@@ -48,7 +48,6 @@ from app.rag.agent.graph import (
     synth_llm,
 )
 from app.rag.chain.prompts import rag_prompt_with_history
-from app.rag.retrieval.vectorstore import get_retriever
 
 
 def _active_question(state: AgentState) -> str:
@@ -84,18 +83,18 @@ async def aclassify_query(state: AgentState) -> dict:
 
 
 async def aretrieve(state: AgentState) -> dict:
-    route = state["route"]
     # Priority: rewrite-loop output > coref-resolved > original. The rewrite
     # retry happens within the graph; coref happens before classify; either or
     # neither may be set.
     question = state.get("rewritten_question") or _active_question(state)
-    retriever_kind = ROUTE_TO_RETRIEVER[route]
-    retriever = get_retriever(k=4, kind=retriever_kind)
+    # Same builder as the sync path, so both graphs are scoped to the caller by
+    # one piece of code rather than two that could drift apart.
+    retriever, kind = build_retriever(state)
     docs = await retriever.ainvoke(question)
     return {
         "documents": docs,
         "trace": [
-            f"retrieved {len(docs)} docs via {retriever_kind} "
+            f"retrieved {len(docs)} docs via {kind} "
             f"(attempt {state.get('attempt', 0) + 1})"
         ],
     }

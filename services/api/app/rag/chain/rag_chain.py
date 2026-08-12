@@ -6,7 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough
 
 from app.rag.chain.prompts import rag_prompt
-from app.rag.retrieval.vectorstore import get_retriever
+from app.rag.retrieval.user_scoped import get_user_retriever
 
 
 def _build_llm() -> ChatAnthropic:
@@ -23,19 +23,20 @@ def format_docs_for_prompt(docs: list[Document]) -> str:
     return "\n\n---\n\n".join(blocks)
 
 
-@lru_cache(maxsize=8)
-def build_chain(k: int = 4, retriever_kind: str = "dense") -> Runnable:
-    """Build the RAG LCEL chain. Cached per (k, retriever_kind).
+@lru_cache(maxsize=32)
+def build_chain(user_id: str, k: int = 4, retriever_kind: str = "dense") -> Runnable:
+    """Build the RAG LCEL chain for one user. Cached per (user, k, kind).
 
-    retriever_kind in {dense, sparse, hybrid}. Default is dense: the
-    retriever comparison found dense best on this corpus (hybrid regressed
-    Smaug + Dwarf-rings, and no retriever could fix Bombadil since the corpus
-    lacks that article). hybrid/sparse remain available for A/B.
-    Shape: question(str) -> {docs, question, context, answer}.
-    The retriever runs once and the docs are carried through so the caller
-    can build the source list without re-running retrieval.
+    user_id is first and is part of the cache key. The retriever it binds is
+    scoped to that user, so a cached chain can only ever search the knowledge
+    base it was built for - caching on (k, kind) alone, as the pre-fork build
+    did, would hand the second caller the first caller's retriever.
+
+    Shape: question(str) -> {docs, question, context, answer}. The retriever
+    runs once and the docs are carried through so the caller can build the
+    source list without re-running retrieval.
     """
-    retriever = get_retriever(k=k, kind=retriever_kind)
+    retriever = get_user_retriever(user_id, k=k, kind=retriever_kind)
     llm = _build_llm()
     return (
         RunnableParallel(

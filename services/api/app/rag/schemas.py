@@ -21,10 +21,19 @@ class HistoryTurn(BaseModel):
 
 
 class Source(BaseModel):
+    """A citation back to the file it came from, as this user names it.
+
+    file_id and chunk_id make the citation actionable rather than decorative:
+    the UI can link to the file, and a reviewer can check that the cited text
+    really is the chunk that was retrieved.
+    """
+
     title: str
     url: str
     source: str
     snippet: str
+    file_id: str = ""
+    chunk_id: str = ""
 
 
 class QueryResponse(BaseModel):
