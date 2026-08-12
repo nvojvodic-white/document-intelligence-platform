@@ -1,79 +1,90 @@
-export interface ToolCall {
-  tool: string
-  input: Record<string, unknown>
-  result: string
+export interface DevUser {
+  user_id: string
+  email: string
 }
 
-export interface AgentSession {
-  session_id: string
-  task: string
-  status: 'running' | 'completed' | 'failed'
-  messages: unknown[]
-  tool_calls: ToolCall[]
-  result: string | null
-  created_at: string
-  completed_at: string | null
+export interface Datasource {
+  id: string
+  kind: string
+  name: string
+  config: { bucket: string; endpoint_url: string | null; region: string }
+  secret_ref: string | null
+  created_at: number
 }
 
-// ---------- RAG chat ----------
-
-export type ChatMode = 'rag' | 'agent'
-
-export interface MetaClassification {
-  route: ChatMode
-  reasoning: string
+export interface SyncRun {
+  id: string
+  directory_id: string
+  state: 'queued' | 'running' | 'succeeded' | 'partial' | 'failed'
+  files_seen: number
+  files_new: number
+  files_skipped: number
+  files_failed: number
+  files_deleted: number
+  chunks_embedded: number
+  chunks_reused: number
+  bytes_downloaded: number
+  error: string | null
+  started_at: number | null
+  finished_at: number | null
 }
 
-export interface ChatSource {
+export interface Directory {
+  id: string
+  datasource_id: string
+  path: string
+  status: string
+  created_at: number
+  latest_run?: SyncRun | null
+  file_count?: number
+}
+
+export interface IndexedFile {
+  id: string
+  provider_key: string
+  size: number | null
+  sha256: string | null
+  state: string
+  error: string | null
+}
+
+export interface BrowseResult {
+  path: string
+  directories: string[]
+  files: { key: string; size: number | null; mtime: number | null }[]
+  truncated: boolean
+}
+
+/** A citation back to the source file, as this user names it. */
+export interface Source {
   title: string
   url: string
   source: string
   snippet: string
+  file_id: string
+  chunk_id: string
 }
 
-// SSE frame types emitted by /agent_query_stream_v2.
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  sources?: Source[]
+  route?: string
+  grade?: string
+  pending?: boolean
+}
+
+/** SSE frames from /rag/agent_query_stream_v2. */
 export type StreamFrame =
   | {
       type: 'metadata'
-      session_id: string | null
-      resolved_question: string | null
-      route: 'definitional' | 'multi_hop' | 'general' | null
-      grade: 'relevant' | 'partial' | 'poor' | null
-      attempt: number | null
-      trace: string[]
-      sources: ChatSource[]
+      route: string
+      grade: string
+      sources: Source[]
       retrieved_chunks: number
-      history_turns_loaded: number
+      trace: string[]
     }
   | { type: 'token'; content: string }
   | { type: 'answer_complete'; content: string }
   | { type: 'error'; message: string }
   | { type: 'done' }
-
-// Shape returned by GET /api/v1/rag/sessions/{id}/turns. Only role + content
-// were persisted; the route/grade/sources from the original message are lost
-// (deliberate: the conversation store is the source of truth for memory,
-// not for UI replay).
-export interface StoredTurn {
-  role: 'user' | 'assistant'
-  content: string
-  turn_index: number
-  timestamp: number
-}
-
-// One displayed chat message; the UI accumulates these in order.
-export interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  // Only set on assistant messages produced by the RAG path:
-  mode?: ChatMode
-  reasoning?: string                                    // meta-classifier output
-  ragRoute?: 'definitional' | 'multi_hop' | 'general'  // RAG agent's internal route
-  ragGrade?: 'relevant' | 'partial' | 'poor'           // RAG agent's grade
-  sources?: ChatSource[]
-  toolCalls?: ToolCall[]                                // for agent-mode messages
-  streaming?: boolean                                   // true while tokens still arriving
-  error?: string
-  hydrated?: boolean                                    // true if loaded from /sessions/{id}/turns
-}
