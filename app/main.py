@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Response
-from app.api.routes import router
 from app.rag.routes import router as rag_router
 from app.observability.tracing import setup_tracing
 from app.observability.metrics import get_metrics
@@ -9,14 +8,16 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 setup_tracing()
 
 app = FastAPI(
-    title="Agent Platform",
-    description="Self-hosted platform for running and observing Claude-powered AI agents",
+    title="Document Intelligence Platform",
+    description=(
+        "Multi-tenant document intelligence: connect a datasource, sync a "
+        "directory into your own knowledge base, and chat over it."
+    ),
     version="0.1.0"
 )
 
 app.add_middleware(APIKeyMiddleware)
 FastAPIInstrumentor.instrument_app(app)
-app.include_router(router, prefix="/api/v1")
 app.include_router(rag_router, prefix="/api/v1/rag")
 
 
