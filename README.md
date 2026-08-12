@@ -25,11 +25,8 @@ Then open <http://localhost:5173>.
 Compose brings up five services: LocalStack (S3), a one-shot seed that uploads `corpus/tolkien`
 into the bucket, the API, the sync worker, and the web UI.
 
-> **Not verified end to end.** Docker is not installed on the machine this was built on, so the
-> compose stack is written from the service contracts rather than confirmed against a live run.
-> Everything below the compose layer *is* exercised: 26 tests cover the sync engine, the dedup
-> ladder, and isolation, including the S3 provider itself via `moto`. Treat first `docker compose
-> up` as the one unproven step.
+Verified from a clean build on Windows 11 + Docker Desktop 4.86 / engine 29.7.2: all four images
+build, the seed uploads 12 objects, and the whole walkthrough below runs with the numbers shown.
 
 ### Environment
 
@@ -57,18 +54,26 @@ only runs when secrets are present is a test that quietly stops running.
 
 ## The walkthrough
 
-1. Log in as **alice**. Connect S3 (bucket `tolkien-corpus`).
-2. Browse to `alice/lore/` and register it.
-3. Sync. Counters move: 6 seen, 6 new, ~150 chunks embedded.
-4. Ask *"Who is Tom Bombadil?"* — the answer cites `alice/lore/tom-bombadil.md`.
-5. Sync again. **6 skipped, 0 bytes downloaded, 0 embedding calls.**
-6. Register `alice/archive/` and sync. One new file row, **0 embeddings** — same bytes as
-   `alice/lore/mithril.md`.
-7. Log in as **bob**, connect, register `bob/lore/`, sync. His `smaug.md` is byte-identical to
-   alice's, so it is **reused from cache, not re-embedded** — and still written into bob's own
-   collection.
-8. Ask bob *"Who is Tom Bombadil?"* — nothing comes back. That document is alice's.
-9. Remove a file as alice and re-ask. The answer changes and the citation is gone.
+Numbers below are from an actual run against the compose stack, not estimates.
+
+| # | Step | Result |
+|---|---|---|
+| 1 | Log in as **alice**, connect S3 (`tolkien-corpus`) | `201`, bucket probed before it is recorded |
+| 2 | Browse | `/` → `alice/`, `bob/`; `alice/lore/` → 6 documents |
+| 3 | Register `alice/lore/` and sync | `succeeded` · seen 6 · new 6 · **307 chunks embedded** · 150,958 bytes |
+| 4 | Ask *"Who is Tom Bombadil?"* | Answer cites `alice/lore/tom-bombadil.md` |
+| 5 | Sync again | `succeeded` · **skipped 6 · 0 bytes · 0 embedding calls** |
+| 6 | Register `alice/archive/` and sync | new 1 · **embedded 0 · reused 24** — same bytes as `alice/lore/mithril.md` |
+| 7 | As **bob**, register `bob/lore/` and sync | new 5 · embedded 204 · **reused 36** — `smaug.md` is byte-identical to alice's |
+| 8 | Ask bob *"Who is Tom Bombadil?"* | *"I don't have any documents covering Tom Bombadil."* Cites only `bob/` files |
+| 9 | Bob hits alice's datasource / files / sync by id | `404`, `404`, `404` |
+| 10 | Alice removes `tom-bombadil.md`, re-asks | 34 vectors dropped; the citation is gone |
+
+Step 8 is the isolation claim and step 10 the removal claim, both observed rather than asserted.
+Step 10 is worth reading closely: afterwards alice's answer cites `frodo-baggins.md`, which
+mentions Bombadil in passing, and the model says it has nothing covering him *directly*. That is
+the correct answer — that document really does mention him — and it is what grounded retrieval
+looks like when the best source has been removed.
 
 ## Architecture
 

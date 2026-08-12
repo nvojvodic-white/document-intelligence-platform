@@ -1,0 +1,12 @@
+# The root .dockerignore does not apply here - this build has its own context.
+#
+# node_modules is the load-bearing entry: without it, `COPY . .` would drop the
+# host's modules over the ones `npm ci` just installed in the image. On a
+# Windows or macOS host those carry native binaries built for the wrong
+# platform, so the dev server fails inside the Linux container in a way that
+# looks like a dependency problem rather than a copy problem.
+node_modules
+dist
+.env
+.env.*
+*.local

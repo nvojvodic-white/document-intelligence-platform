@@ -100,30 +100,36 @@ alice and bob hold byte-identical content, share a cache entry for it, and still
 other's. The suite runs with no keys and no network, because a data-safety test that only runs when
 secrets are present is one that quietly stops running.
 
-## What I did not verify
+## Verification
 
-**Docker is not installed on this machine**, so `docker compose up` was never executed. The compose
-file is written from the service contracts and validated as YAML, but the first real run is
-unproven. Everything below it is exercised: the S3 provider runs against `moto` in CI rather than a
-hand-written fake, so the boto3 code path itself is under test.
+The compose stack was initially unverified — Docker was not installed on the build machine, so it
+was written from the service contracts. Docker Desktop was installed afterwards and the stack now
+runs: four images build clean, the seed uploads 12 objects, and the documented walkthrough executes
+end to end with the numbers now recorded in the README.
 
-If one thing breaks on a reviewer's first run, my money is on service startup ordering or the web
-container's API base URL — not on the sync or isolation logic, which the tests cover directly.
+One real bug turned up in the process, and it is the kind only a build catches. The root
+`.dockerignore` does not apply to the `apps/web` build context, so `COPY . .` copied the host's
+`node_modules` over what `npm ci` had just installed in the image. On a Windows host those are
+native binaries for the wrong platform, and the failure would have surfaced inside the container as
+a dependency error rather than as the copy problem it is. Fixed with a context-local
+`.dockerignore`.
+
+Nothing else needed changing: startup ordering, the seed's readiness poll, the shared volume, and
+the web container's API base URL all behaved as designed on the first run.
 
 ## The next eight hours
 
 In priority order:
 
-1. **Run the compose stack and fix what falls over.** It is the one unverified deliverable.
-2. **Postgres.** The single-writer constraint is the ceiling on everything else. Claiming already
+1. **Postgres.** The single-writer constraint is the ceiling on everything else. Claiming already
    has the right shape; the change is the driver plus the ability to run more than one worker.
-3. **A concurrency test for claiming.** Two workers racing the same queued run is currently
+2. **A concurrency test for claiming.** Two workers racing the same queued run is currently
    argued-for rather than proven, and it cannot be properly proven on SQLite anyway.
-4. **PDF and DOCX extraction.** The seam exists and `extraction_version` already invalidates the
+3. **PDF and DOCX extraction.** The seam exists and `extraction_version` already invalidates the
    cache correctly; this is a branch and a version bump.
-5. **Chunk-level provenance in the answer.** Citations name the file today; they should carry the
+4. **Chunk-level provenance in the answer.** Citations name the file today; they should carry the
    offset so a reviewer can jump to the exact span.
-6. **Bring back an evaluation harness**, per-user this time, so retrieval quality changes are
+5. **Bring back an evaluation harness**, per-user this time, so retrieval quality changes are
    measured rather than felt.
-7. **Real auth.** Replace `verify_token()` with an IdP verifier — deliberately a one-function
+6. **Real auth.** Replace `verify_token()` with an IdP verifier — deliberately a one-function
    change.
