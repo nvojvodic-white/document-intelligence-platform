@@ -15,3 +15,4 @@ Appended the moment something is cut, with a one-line reason. Not reconstructed 
 | 9 | Deployment surface (helm charts, k8s, `deploy.sh`, `DEPLOYMENT.md`) | Named default cut, and all of it targets the single-tenant service that no longer exists. |
 | 10 | Grafana / Prometheus dashboards | Chart agent-session metrics that were deleted with the session surface. |
 | 11 | Pre-fork demo scripts (`demo.sh/ps1/cmd`, `scripts/demo.py`) | Bootstrapped a venv and built indices from a local corpus; superseded by `docker compose up`. |
+| 12 | OpenRouter migration | Reversed on instruction mid-build: stay on the Anthropic API. The inherited `ChatAnthropic` wiring is kept, which removes a migration from the budget. |

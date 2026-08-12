@@ -68,5 +68,9 @@ boto3==1.40.47
 # request body or header.
 PyJWT==2.10.1
 
-# Tests
+# Tests. moto stands in for S3 so the real boto3 provider code is exercised in
+# CI without Docker or a LocalStack container - the alternative was a hand
+# written fake that would have tested everything except the code that talks to
+# the provider.
 pytest==8.4.2
+moto[s3]==5.1.14

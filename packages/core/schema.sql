@@ -125,6 +125,12 @@ CREATE TABLE IF NOT EXISTS sync_runs (
     files_skipped  INTEGER NOT NULL DEFAULT 0,
     files_failed   INTEGER NOT NULL DEFAULT 0,
     files_deleted  INTEGER NOT NULL DEFAULT 0,
+    -- The dedup receipt. chunks_reused counts embeddings that were served from
+    -- the cache instead of being paid for, so the saving is a number in the
+    -- run record rather than a claim in the README.
+    chunks_embedded INTEGER NOT NULL DEFAULT 0,
+    chunks_reused   INTEGER NOT NULL DEFAULT 0,
+    bytes_downloaded INTEGER NOT NULL DEFAULT 0,
     error          TEXT,
     heartbeat_at   REAL,
     started_at     REAL,

@@ -56,9 +56,11 @@ memory.
 
 ## Ambiguities, resolved
 
-- **OpenRouter has no embeddings API.** Decision: chat LLM calls go through OpenRouter; embeddings
-  stay on OpenAI `text-embedding-3-small`. Cost: a clean clone needs two keys, not one. Stated in
-  the README rather than glossed.
+- ~~**OpenRouter has no embeddings API.** Chat LLM calls go through OpenRouter; embeddings stay on
+  OpenAI.~~ **Reversed mid-build on instruction: stay on the Anthropic API.** The inherited
+  `ChatAnthropic` wiring is kept as-is, which removes a migration from the budget. Embeddings were
+  always going to OpenAI regardless, so the environment still needs two keys —
+  `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`.
 - **The corpus is not in the repo.** `data/` is gitignored, so the 631 scraped Tolkien files exist
   only on the machine that scraped them. A curated slice is committed to `corpus/tolkien/` and
   seeded into LocalStack at boot, including the two files the dedup demo needs: one repeated under

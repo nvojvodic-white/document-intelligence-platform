@@ -579,7 +579,8 @@ def bump_run_counters(run_id: str, **deltas: int) -> None:
     rather than from the worker's memory. A UI refresh mid-run shows real
     progress, and a crashed worker leaves an honest partial count behind."""
     allowed = {
-        "files_seen", "files_new", "files_skipped", "files_failed", "files_deleted"
+        "files_seen", "files_new", "files_skipped", "files_failed", "files_deleted",
+        "chunks_embedded", "chunks_reused", "bytes_downloaded",
     }
     sets, params = [], []
     for key, delta in deltas.items():
