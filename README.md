@@ -13,7 +13,7 @@ path rather than a fixture pretending to be one.
 ## Run it
 
 ```bash
-git clone <repo> && cd agent-platform
+git clone <repo> && cd document-intelligence-platform
 cp .env.example .env        # then add your two API keys
 docker compose up --build
 ```
