@@ -7,9 +7,17 @@ __pycache__/
 env/
 venv/
 .pytest_cache/
+.ruff_cache/
 coverage/
 .git/
 .gitignore
 *.log
 .DS_Store
 .env
+
+# Local state: SQLite databases and per-user Chroma collections are volumes in
+# compose, never baked into the image.
+data/
+
+# The web UI builds in its own stage/container, not in the Python image.
+apps/web/node_modules/

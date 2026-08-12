@@ -1,47 +1,32 @@
-.PHONY: demo demo-check rag-rebuild rag-probes eval-one eval-all eval-compare
+.PHONY: up down logs seed test lint rebuild
 
-# Bring up the whole local stack (API + RAG + UI). Handles venv creation,
-# dependency install, and preflight; see scripts/demo.py.
-demo:
-	./demo.sh
+# Two import roots, matching the Dockerfile and CI.
+export PYTHONPATH := services/api:packages
 
-# Preflight only — reports missing venv / keys / indices and starts nothing.
-demo-check:
-	./demo.sh --check
+# The one-command path from a clean clone: API, sync worker, LocalStack (with
+# the corpus seeded into S3), and the web UI.
+up:
+	docker compose up --build
 
-# Run the RAGAS eval for one retriever, n-runs averaged.
-# Override on the command line, e.g.: make eval-one RETRIEVER=hyde N_RUNS=3
-RETRIEVER ?= dense
-K ?= 4
-N_RUNS ?= 1
-eval-one:
-	. venv/bin/activate && python -m app.rag.eval.ragas_eval \
-		--retriever $(RETRIEVER) --k $(K) --n-runs $(N_RUNS)
+down:
+	docker compose down -v
 
-# Run the full retriever matrix at N_RUNS each (default 3 for noise smoothing).
-EVAL_RETRIEVERS ?= dense sparse hybrid hybrid_40_60 hyde multi_query pdr semantic
-EVAL_N_RUNS ?= 3
-eval-all:
-	. venv/bin/activate && for r in $(EVAL_RETRIEVERS); do \
-		echo "=== $$r ==="; \
-		python -m app.rag.eval.ragas_eval --retriever $$r --k $(K) --n-runs $(EVAL_N_RUNS) || exit 1; \
-	done
+logs:
+	docker compose logs -f api worker
 
-# Diff the latest RETRIEVER history against the latest BASELINE_RETRIEVER
-# history (default baseline: dense). E.g.: make eval-compare RETRIEVER=hyde
-BASELINE_RETRIEVER ?= dense
-eval-compare:
-	. venv/bin/activate && python -m app.rag.eval.compare_to_baseline \
-		--baseline-retriever $(BASELINE_RETRIEVER) --retriever $(RETRIEVER) --k $(K)
+# Re-seed the LocalStack bucket from corpus/tolkien without touching the rest
+# of the stack.
+seed:
+	docker compose run --rm seed
 
+test:
+	python -m pytest tests/ -v --tb=short
 
-# Rebuild the agent-api image and restart the container so new app/rag/* code
-# goes live in the docker-compose stack. Without this, `docker compose restart`
-# alone runs the old image and silently serves stale RAG code.
-rag-rebuild:
-	docker compose up -d --build agent-api
+lint:
+	ruff check services/ packages/
 
-# Run the probe sweep against the live service. Override RAG_URL
-# to point at a different port (e.g. RAG_URL=http://localhost:8124/... make rag-probes).
-rag-probes:
-	. venv/bin/activate && python -m app.rag.eval.run_probes
+# Rebuild the image and restart the two Python services so code changes go
+# live. Without the rebuild, `docker compose restart` runs the old image and
+# silently serves stale code.
+rebuild:
+	docker compose up -d --build api worker

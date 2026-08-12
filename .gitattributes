@@ -2,7 +2,8 @@
 # (core.autocrlf=true would otherwise rewrite the shebang to "#!/usr/bin/env bash\r",
 # which bash rejects with "bad interpreter").
 *.sh text eol=lf
-deploy.sh text eol=lf
 
-# Batch files are parsed line-by-line by cmd.exe and want CRLF
-*.cmd text eol=crlf
+# The corpus is content-addressed: files are deduplicated by the sha256 of
+# their bytes, so git must not rewrite line endings underneath them or the
+# same document would hash differently on Windows and Linux.
+corpus/** -text

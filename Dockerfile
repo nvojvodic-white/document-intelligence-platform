@@ -13,8 +13,13 @@ RUN pip install --no-cache-dir "wheel>=0.46.2" "setuptools>=78.0.0"
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
-COPY app/ ./app/
+# Two import roots, one image: `app` (the API package) and `core` (shared).
+# The API and the sync worker run as separate processes from this same image,
+# which is why both roots are on the path rather than one entrypoint vendoring
+# the other.
+COPY services/ ./services/
+COPY packages/ ./packages/
+ENV PYTHONPATH=/app/services/api:/app/packages
 
 EXPOSE 8000
 

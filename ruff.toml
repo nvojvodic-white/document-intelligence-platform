@@ -4,8 +4,3 @@
 # belongs to the repo rather than to whichever ruff the runner fetches.
 [lint]
 select = ["E4", "E7", "E9", "F"]
-
-[lint.per-file-ignores]
-# Import order is load-bearing here: warnings.filterwarnings() and the
-# _ragas_compat shim both have to run before ragas is imported.
-"app/rag/eval/ragas_eval.py" = ["E402"]

@@ -56,18 +56,17 @@ langchain-openai==1.2.2
 langchain-text-splitters==1.1.2
 chromadb==1.5.9
 tiktoken==0.8.0
+# Sparse half of the hybrid retriever, built per-user from that user's own
+# chunk rows.
 rank_bm25==0.2.2
-turbovec==0.7.0
 
-# RAG evaluation (app/rag/eval/)
-ragas==0.4.0
-datasets==4.8.5
-# Transitive via ragas. Pinned because unpinned it floats onto releases whose
-# jiter/docstring-parser caps conflict with the pins above (1.15.1 capped
-# jiter<0.14, which made the whole file unresolvable).
-instructor==1.15.4
+# Datasource providers (packages/core/storage). boto3 talks to LocalStack in
+# compose and to real S3 unchanged - only the endpoint URL differs.
+boto3==1.40.47
 
-# RAG ingestion (app/rag/ingestion/)
-requests==2.34.2
-beautifulsoup4==4.12.3
-tqdm==4.67.3
+# Dev-login JWTs. Identity is read from the verified token only, never from a
+# request body or header.
+PyJWT==2.10.1
+
+# Tests
+pytest==8.4.2
