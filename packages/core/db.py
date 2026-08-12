@@ -14,12 +14,15 @@ here in one place rather than scattered:
 
 Postgres is the first thing to swap in if a second worker is ever needed.
 """
+import logging
 import sqlite3
 import threading
 from contextlib import contextmanager
 from pathlib import Path
 
 from core.config import DB_PATH
+
+log = logging.getLogger(__name__)
 
 _SCHEMA = Path(__file__).parent / "schema.sql"
 
@@ -40,6 +43,58 @@ def _configure(con: sqlite3.Connection) -> None:
     con.execute("PRAGMA synchronous=NORMAL")
 
 
+def _dedupe_datasources(con: sqlite3.Connection) -> int:
+    """Collapse duplicate datasources before the unique index is created.
+
+    Runs before the schema script because CREATE UNIQUE INDEX fails outright on
+    a table that already violates it - and an existing volume from before the
+    constraint does. Without this, adding the constraint would stop the API
+    booting against real data, which is a worse bug than the duplicates.
+
+    Keeps the oldest row of each (user_id, kind, bucket, endpoint) group and
+    repoints everything that referenced the others at it.
+    """
+    exists = con.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='datasources'"
+    ).fetchone()
+    if not exists:
+        return 0  # fresh database; nothing to migrate
+
+    duplicates = con.execute(
+        """
+        SELECT d.id, (
+            SELECT k.id FROM datasources k
+            WHERE k.user_id = d.user_id AND k.kind = d.kind
+              AND json_extract(k.config, '$.bucket') = json_extract(d.config, '$.bucket')
+              AND COALESCE(json_extract(k.config, '$.endpoint_url'), '')
+                = COALESCE(json_extract(d.config, '$.endpoint_url'), '')
+            ORDER BY k.created_at, k.id LIMIT 1
+        ) AS keeper
+        FROM datasources d
+        """
+    ).fetchall()
+    remap = [(row[0], row[1]) for row in duplicates if row[1] and row[0] != row[1]]
+    if not remap:
+        return 0
+
+    for dead, keeper in remap:
+        con.execute(
+            "UPDATE directories SET datasource_id = ? WHERE datasource_id = ?",
+            (keeper, dead),
+        )
+        # OR IGNORE: the survivor may already hold a row for the same
+        # (user_id, datasource_id, provider_key). Its attribution is the one to
+        # keep, so a colliding duplicate is dropped rather than merged.
+        con.execute(
+            "UPDATE OR IGNORE files SET datasource_id = ? WHERE datasource_id = ?",
+            (keeper, dead),
+        )
+        con.execute("DELETE FROM files WHERE datasource_id = ?", (dead,))
+        con.execute("DELETE FROM datasources WHERE id = ?", (dead,))
+
+    return len(remap)
+
+
 def init(force: bool = False) -> None:
     """Create the schema if absent. Idempotent."""
     global _initialised
@@ -50,6 +105,9 @@ def init(force: bool = False) -> None:
         con = sqlite3.connect(str(DB_PATH))
         try:
             _configure(con)
+            collapsed = _dedupe_datasources(con)
+            if collapsed:
+                log.info("collapsed %s duplicate datasource(s)", collapsed)
             con.executescript(_SCHEMA.read_text(encoding="utf-8"))
             con.commit()
         finally:

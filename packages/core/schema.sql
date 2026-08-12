@@ -32,6 +32,23 @@ CREATE TABLE IF NOT EXISTS datasources (
 
 CREATE INDEX IF NOT EXISTS ix_datasources_user ON datasources(user_id);
 
+-- A datasource is identified by where it points, not by when it was created.
+-- Without this, clicking "connect" twice made two rows for one bucket, while
+-- registering the same directory twice was already idempotent - the same
+-- action, two different behaviours.
+--
+-- Indexed on the extracted bucket and endpoint rather than the whole config
+-- blob, so a cosmetic change (a new key, a different key order) does not make
+-- the same datasource look like a new one. COALESCE because a NULL endpoint
+-- means "real AWS" and NULLs are all distinct to a unique index, which would
+-- let unlimited duplicates through for exactly the common case.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_datasources_identity ON datasources(
+    user_id,
+    kind,
+    json_extract(config, '$.bucket'),
+    COALESCE(json_extract(config, '$.endpoint_url'), '')
+);
+
 CREATE TABLE IF NOT EXISTS directories (
     id             TEXT PRIMARY KEY,
     -- Denormalised from datasources so every scoped read filters on user_id

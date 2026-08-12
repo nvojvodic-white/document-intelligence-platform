@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from core import repositories as repo
@@ -65,11 +65,17 @@ def _load_datasource_or_404(user_id: str, datasource_id: str) -> dict:
 
 
 @router.post("/datasources", response_model=DatasourceOut, status_code=201)
-def connect_s3(req: ConnectS3Request, user_id: str = CurrentUser) -> DatasourceOut:
+def connect_s3(
+    req: ConnectS3Request, response: Response, user_id: str = CurrentUser
+) -> DatasourceOut:
     """Connect an S3 datasource, verifying reachability before recording it.
 
     The check happens first so a typo in the bucket name surfaces here rather
     than as a failed sync run ten minutes later.
+
+    Connecting the same bucket again returns the existing datasource with 200
+    rather than creating a duplicate; a fresh connection is 201. The body is the
+    same shape either way, so a caller that ignores the status still behaves.
     """
     config = {
         "bucket": req.bucket,
@@ -88,14 +94,17 @@ def connect_s3(req: ConnectS3Request, user_id: str = CurrentUser) -> DatasourceO
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
 
-    created = repo.create_datasource(
+    datasource, was_created = repo.create_datasource(
         user_id,
         kind="s3",
         name=req.name,
         config=config,
         secret_ref=probe["secret_ref"],
     )
-    return _public_datasource(created)
+    response.status_code = (
+        status.HTTP_201_CREATED if was_created else status.HTTP_200_OK
+    )
+    return _public_datasource(datasource)
 
 
 @router.get("/datasources", response_model=list[DatasourceOut])

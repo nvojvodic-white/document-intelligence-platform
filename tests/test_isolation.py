@@ -29,7 +29,7 @@ def two_synced_users(s3, core_env, datasource_row):
     users = {}
     for user_id in ("alice", "bob"):
         repo.ensure_user(user_id, f"{user_id}@example.com")
-        ds = repo.create_datasource(
+        ds, _ = repo.create_datasource(
             user_id, "s3", "corpus", datasource_row["config"], None
         )
         directory, _ = repo.create_directory(user_id, ds["id"], f"{user_id}/lore/")

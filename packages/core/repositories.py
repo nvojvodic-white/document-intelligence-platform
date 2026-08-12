@@ -65,19 +65,42 @@ def get_user(user_id: str) -> dict[str, Any] | None:
 
 def create_datasource(
     user_id: str, kind: str, name: str, config: dict, secret_ref: str | None
-) -> dict[str, Any]:
-    """Register a datasource. `config` holds non-secret settings only; the
-    credential is referenced by name and resolved from the environment at use
-    time, so it never enters the database or an API response."""
-    ds_id = _id()
+) -> tuple[dict[str, Any], bool]:
+    """Register a datasource. Returns (datasource, created).
+
+    `config` holds non-secret settings only; the credential is referenced by
+    name and resolved from the environment at use time, so it never enters the
+    database or an API response.
+
+    Connecting the same bucket twice is not an error and does not make a second
+    row - the unique index on (user_id, kind, bucket, endpoint) makes the second
+    attempt a no-op that returns the existing row. Same treatment as
+    create_directory, because it is the same situation: a user clicking a button
+    twice should not fork their configuration.
+    """
     with db.connect() as c:
-        c.execute(
+        cur = c.execute(
             "INSERT INTO datasources "
             "(id, user_id, kind, name, config, secret_ref, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (ds_id, user_id, kind, name, json.dumps(config), secret_ref, _now()),
+            "VALUES (?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT DO NOTHING",
+            (_id(), user_id, kind, name, json.dumps(config), secret_ref, _now()),
         )
-    return get_datasource(user_id, ds_id)
+        created = cur.rowcount > 0
+        row = _row(
+            c.execute(
+                "SELECT * FROM datasources WHERE user_id = ? AND kind = ? "
+                "AND json_extract(config, '$.bucket') = ? "
+                "AND COALESCE(json_extract(config, '$.endpoint_url'), '') = ?",
+                (
+                    user_id,
+                    kind,
+                    config.get("bucket"),
+                    config.get("endpoint_url") or "",
+                ),
+            )
+        )
+    return _hydrate_datasource(row), created
 
 
 def list_datasources(user_id: str) -> list[dict[str, Any]]:

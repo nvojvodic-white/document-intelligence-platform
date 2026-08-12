@@ -16,7 +16,7 @@ def alice(s3, core_env, datasource_row):
     """Alice with a registered directory over alice/lore/, nothing synced yet."""
     repo = core_env["core.repositories"]
     repo.ensure_user("alice", "alice@example.com")
-    ds = repo.create_datasource(
+    ds, _ = repo.create_datasource(
         "alice", "s3", "corpus", datasource_row["config"], None
     )
     directory, _ = repo.create_directory("alice", ds["id"], "alice/lore/")
@@ -177,7 +177,7 @@ def test_one_unreadable_file_does_not_abort_the_run(alice, core_env, s3):
 def test_an_unreachable_datasource_fails_the_whole_run(alice, core_env):
     """No listing means nothing can be attributed, so the run fails outright."""
     repo = core_env["core.repositories"]
-    broken = repo.create_datasource(
+    broken, _ = repo.create_datasource(
         "alice", "s3", "gone", {"bucket": "no-such-bucket"}, None
     )
     directory, _ = repo.create_directory("alice", broken["id"], "whatever/")
