@@ -21,6 +21,11 @@ COPY services/ ./services/
 COPY packages/ ./packages/
 ENV PYTHONPATH=/app/services/api:/app/packages
 
+# The seed service uploads these into LocalStack at boot; committed rather than
+# fetched so a clean clone runs with no network access.
+COPY infra/ ./infra/
+COPY corpus/ ./corpus/
+
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

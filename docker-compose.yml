@@ -1,54 +1,121 @@
+# The one-command path from a clean clone: docker compose up
+#
+# Five services. LocalStack stands in for S3, seed uploads the committed corpus
+# into it once and exits, api serves the request path, worker drains the sync
+# queue, and web serves the UI.
+#
+# api and worker run the same image with different commands. They are separate
+# processes so a long sync cannot take the request path down with it and so the
+# worker can be restarted on its own.
+
 services:
-  agent-api:
+  localstack:
+    image: localstack/localstack:3.8
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEBUG=0
+      # Keep the seeded bucket across restarts of the stack.
+      - PERSISTENCE=1
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # Uploads corpus/tolkien into the bucket, then exits. Idempotent: identity is
+  # the sha256 of content, so re-seeding the same bytes changes nothing.
+  seed:
+    build: .
+    command: ["python", "/app/infra/seed_localstack.py"]
+    environment:
+      - S3_ENDPOINT_URL=http://localstack:4566
+      - S3_BUCKET=tolkien-corpus
+      - CORPUS_DIR=/app/corpus/tolkien
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    depends_on:
+      localstack:
+        condition: service_healthy
+    restart: "no"
+
+  api:
     build: .
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      # Optional so a clean clone boots before you have written .env. Missing
+      # keys then surface as a clear per-file sync error instead of a compose
+      # parse failure that explains nothing.
+      - path: .env
+        required: false
     environment:
-      - ENVIRONMENT=development
-      - OTLP_ENDPOINT=http://jaeger:4317
-      - DB_PATH=/data/sessions.db
+      - DATA_DIR=/data
+      - S3_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      # Dev-login signing key. The whole trust boundary, so it is explicit
+      # rather than left to the code default.
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-not-for-production}
+      # Local traces have nowhere to go now that Jaeger is gone; exporting to a
+      # dead collector logs an error per span.
+      - OTEL_SDK_DISABLED=true
     volumes:
-      - agent-data:/data
+      # One shared volume: SQLite, the Chroma collections, and the text store.
+      # Both Python services mount it because the worker writes what the API
+      # reads.
+      - platform-data:/data
     depends_on:
-      - jaeger
+      seed:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
     restart: unless-stopped
 
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "4317:4317"
+  worker:
+    build: .
+    command: ["python", "/app/services/worker/main.py"]
+    env_file:
+      # Optional so a clean clone boots before you have written .env. Missing
+      # keys then surface as a clear per-file sync error instead of a compose
+      # parse failure that explains nothing.
+      - path: .env
+        required: false
     environment:
-      - COLLECTOR_OTLP_ENABLED=true
-    restart: unless-stopped
-
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
+      - DATA_DIR=/data
+      - S3_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - OTEL_SDK_DISABLED=true
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - platform-data:/data
     depends_on:
-      - prometheus
+      seed:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE=http://localhost:8000
+    depends_on:
+      api:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
-  agent-data:
+  platform-data:
+  localstack-data:
