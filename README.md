@@ -11,6 +11,7 @@ path rather than a fixture pretending to be one.
 - [WRITEUP.md](WRITEUP.md) — what was built, what was cut, whether the plan survived
 - [CUTS.md](CUTS.md) — every cut, logged when it was made
 - [docs/architecture.md](docs/architecture.md) — architecture, data flow, sync lifecycle
+- [NOTICE.md](NOTICE.md) — third-party corpus attribution and licence status
 
 ## Run it
 
@@ -59,21 +60,30 @@ Numbers below are from an actual run against the compose stack, not estimates.
 | # | Step | Result |
 |---|---|---|
 | 1 | Log in as **alice**, connect S3 (`tolkien-corpus`) | `201`, bucket probed before it is recorded |
-| 2 | Browse | `/` → `alice/`, `bob/`; `alice/lore/` → 6 documents |
-| 3 | Register `alice/lore/` and sync | `succeeded` · seen 6 · new 6 · **307 chunks embedded** · 150,958 bytes |
-| 4 | Ask *"Who is Tom Bombadil?"* | Answer cites `alice/lore/tom-bombadil.md` |
-| 5 | Sync again | `succeeded` · **skipped 6 · 0 bytes · 0 embedding calls** |
-| 6 | Register `alice/archive/` and sync | new 1 · **embedded 0 · reused 24** — same bytes as `alice/lore/mithril.md` |
-| 7 | As **bob**, register `bob/lore/` and sync | new 5 · embedded 204 · **reused 36** — `smaug.md` is byte-identical to alice's |
-| 8 | Ask bob *"Who is Tom Bombadil?"* | *"I don't have any documents covering Tom Bombadil."* Cites only `bob/` files |
+| 2 | Browse | `/` → `library/`, `library-archive/`, `alice-private/`, `bob-private/` |
+| 3 | Register `library/` and sync | `succeeded` · seen 2284 · new 2284 · failed 0 · **15,262 chunks embedded** · 7.9 MB · ~12 min |
+| 4 | Ask *"Who was Sauron?"* | Cites `library/tolkien_gateway/sauron.md` and two others |
+| 5 | Sync again | `succeeded` · **skipped 2284 · 0 bytes · 0 embedding calls** |
+| 6 | Register `library-archive/` and sync | new 16 · **embedded 0 · reused 1,213** — byte-identical to library documents |
+| 7 | As **bob**, register `library/` and sync | new 2284 · **embedded 0 · reused 15,262** |
+| 8 | Ask each about the other's private set | Neither ever cites the other's `*-private/` documents |
 | 9 | Bob hits alice's datasource / files / sync by id | `404`, `404`, `404` |
-| 10 | Alice removes `tom-bombadil.md`, re-asks | 34 vectors dropped; the citation is gone |
+| 10 | Alice removes a document, re-asks | Vectors dropped; the citation is gone |
 
-Step 8 is the isolation claim and step 10 the removal claim, both observed rather than asserted.
-Step 10 is worth reading closely: afterwards alice's answer cites `frodo-baggins.md`, which
-mentions Bombadil in passing, and the model says it has nothing covering him *directly*. That is
-the correct answer — that document really does mention him — and it is what grounded retrieval
-looks like when the best source has been removed.
+**Step 7 is the headline.** Bob indexes the entire 2,284-document corpus without a single
+embedding call, because alice already paid for those vectors — and he still ends up with his own
+private copy of all 15,262 of them. Step 6 is the same saving within one user: the same bytes under
+a second path cost sixteen attribution rows and nothing else.
+
+**Step 8 needs reading carefully, because it is about documents rather than topics.** Ask bob about
+Shelob (an alice-private document) and he does answer — from incidental mentions in *his own*
+library documents, citing `frodo-baggins.md` and `shagrat.md`. He never touches
+`alice-private/shelob.md`, and alice's answer to the same question cites that file directly and
+comprehensively. That is the guarantee working as designed: isolation is per document, not per
+topic. Refusing to use bob's own documents because they happen to mention a subject alice also
+holds would be censoring his data, not protecting hers. At the 12-document scale the fixture uses,
+the same probe returns a flat *"I don't have any documents covering that"* — the crisper demo, but
+the weaker statement of the actual property.
 
 ## Architecture
 

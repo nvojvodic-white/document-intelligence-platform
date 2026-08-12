@@ -8,6 +8,11 @@ Provenance: Tolkien Gateway, the LotR Fandom wiki, and Wikipedia's Tolkien
 articles, scraped by the pre-fork ingestion scripts and rendered to markdown as
 `# {title}` / `Source: {url}` / body.
 
+This is verbatim third-party wiki text under copyleft licences. See
+[NOTICE.md](../NOTICE.md) for attribution and licence status — the Tolkien
+Gateway terms in particular are unverified, and it is the largest share of the
+corpus.
+
 ## Layout
 
 ```
@@ -47,11 +52,24 @@ knowledge base does not look arbitrarily incomplete.
 the files rather than of the code and are easy to break by adding or renaming a
 document.
 
-## Costs
+## Costs, measured
 
-Alice's first `library/` sync embeds ~11,000 chunks — roughly $0.05 of
-`text-embedding-3-small`, and 10–20 minutes of wall clock, since the worker
-processes one document at a time. Bob's sync of the same prefix embeds nothing.
+From an actual run against the compose stack:
+
+| Run | seen | new | embedded | reused | downloaded |
+|---|---:|---:|---:|---:|---:|
+| alice `library/` | 2284 | 2284 | **15,262** | 0 | 7.9 MB |
+| alice `library/` again | 2284 | 0 | 0 | 0 | **0 bytes** |
+| alice `library-archive/` | 16 | 16 | **0** | 1,213 | 0.7 MB |
+| bob `library/` | 2284 | 2284 | **0** | **15,262** | 7.9 MB |
+
+Alice's first sync took ~12 minutes and about $0.05 of `text-embedding-3-small`;
+the worker processes one document at a time. Bob's sync of the same 2,284
+documents embedded nothing at all.
+
+Bob still downloads the 7.9 MB, because the bytes have to be fetched before they
+can be hashed — the saving is the embedding call, which is the expensive part,
+not the transfer.
 
 `.gitattributes` marks `corpus/** -text` so git never rewrites line endings
 underneath these files; without it the same document would hash differently on
