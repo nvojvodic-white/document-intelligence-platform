@@ -1,0 +1,5 @@
+# Vëannë
+
+Source: https://lotr.fandom.com/wiki/Vëannë
+
+! This content is considered pre-canon. While the subject of this article is based on official information, it was replaced, emended, or abandoned in later stages of the legendarium . ! Vëannë (named Melinir by Eriol ) was a child who resided at the Cottage of Lost Play in Tol Eressëa . The Tale of Tinúviel, the earliest version of the story of Beren and Lúthien , was once narrated by Vëannë at the cottage, on the same night that Littleheart afterwards told the tale of the Fall of Gondolin . Canon She appears only in J.R.R. Tolkien 's early stories of Eriol in The Book of Lost Tales , composed between 1910 and 1920. She also is reintroduced into the 'complete tale' of Beren and Lúthien , again as the teller of The Tale of Tinúviel. References ↑ The History of Middle-earth , Vol. II: The Book of Lost Tales Part Two , chapter I: " The Tale of Tinúviel " ↑ The History of Middle-earth , Vol. II: The Book of Lost Tales Part Two , chapter II: " The Fall of Gondolin " ↑ Beren and Lúthien

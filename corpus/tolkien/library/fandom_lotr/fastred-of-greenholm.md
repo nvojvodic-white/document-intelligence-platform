@@ -1,0 +1,5 @@
+# Fastred of Greenholm
+
+Source: https://lotr.fandom.com/wiki/Fastred_of_Greenholm
+
+This article refers to the Hobbit of Westmarch . For other namesakes, see Fastred (disambiguation) . Fastred of Greenholm was a hobbit of the Shire . Biography Fastred was born in Greenholm at an unknown date. In FO 31 (SR 1452), he married Elanor Gamgee ; their son Elfstan Fairbairn was born two years later. He also had a daughter, Fíriel . In FO 41 (SR 1462), Fastred was made first Warden of Westmarch , and his family moved to Under-towers permanently. Translations Foreign Language Translated name Bulgarian Cyrillic Фастред от Зелени кът Finnish Fastred ja Viherluoto German Fastred von Grünholm Hebrew פאסטרד מגרינהולם Italian Fastred di Verdolmo Polish Fastred z Greenholmu Russian Фастред из Травхольм Ukrainian Cyrillic Фастед з Грінхольм References ↑ The Adventures of Tom Bombadil , Preface, note 2 ↑ The Lord of the Rings , Appendix B , "Later Events Concerning the Members of the Fellowship of the Ring"

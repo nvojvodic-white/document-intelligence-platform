@@ -1,0 +1,5 @@
+# Aranwë
+
+Source: https://lotr.fandom.com/wiki/Aranwë
+
+Aranwë was an Elf of Gondolin and the father of Voronwë . His son stated that he was from the House of Fingolfin , suggesting that Aranwë might have been a noble elf in Gondolin . Etymology The Quenya name Aranwë means "Kingly" or "Noble" from ara ("noble") and aran ("king"). The suffix -wë occurs in many names, though it is not exclusively masculine. Translations Foreign Language Translated name Arabic أرانوي ? Armenian Արանվը Belarusian Cyrillic Аранве Bengali আরান্বে Bulgarian Cyrillic Аранве Chinese 亞仁威 Greek Αρανβε Gujarati અરણવે Hindi अरांवे Japanese アランウェ Kannada ಅರಾನ್ವೆ Korean 아란 브 Macedonian Cyrillic Аранве Marathi अरांवे Mongolian Cyrillic Аранве Persian آرانواه ? Punjabi ਅਰਾਨਵੇ Russian Аранвэ Serbian Аранве (Cyrillic) Aranve (Latin) Sinhalese අරන්වේ Tamil அரன்வெ Telugu అరన్వే Ukrainian Cyrillic Аранве References ↑ The Silmarillion , Quenta Silmarillion , Chapter XXIII: " Of Tuor and the Fall of Gondolin " ↑ Unfinished Tales , Introduction, Part One, I: "Of Tuor and his Coming to Gondolin" ↑ The History of Middle-earth , Vol. V: The Lost Road and Other Writings , Part Three: " The Etymologies "

@@ -1,0 +1,5 @@
+# Cottar
+
+Source: https://lotr.fandom.com/wiki/Cottar
+
+Cottar was a hobbit of the Shire and the founder of the Cotton family . Cottar was born in TA 2820 ( SR 1220 ). He married an unnamed woman and had two children: Cotman and Carl who both continued the family. Translations Foreign Language Translated name Arabic كوتار Armenian Կոտտար Belarusian Cyrillic Котар Bengali কোটার Bulgarian Cyrillic Котар Dari کوتار Finnish Tölliläinen French Casal Georgian კოტერი German Hütter Greek Κόταρ Gujarati કોટાર Hebrew קוטאר Hindi कोट्टर Kannada ಕೊಟ್ಟರ್ Kazakh Коттар (Cyrillic) Kottar (Latin) Kyrgyz Cyrillic Коттар Macedonian Cyrillic Котар Marathi कोटर Mongolian Cyrillic Коттар Pashto کوټټر Persian کوتار Punjabi ਕੋਟਰ Nepalese कोटर Russian Коттер Serbian Коттар (Cyrillic) Kottar (Latin) Sindhi ڪوٽا Sinhalese කෝටර් Tajik Cyrillic Коттер Tamil கோட்டார் Tatar Коттар Telugu కోటర్ Ukrainian Cyrillic Коттар Urdu کوٹر Yiddish קאָטער References ↑ The Lord of the Rings , Appendix C , "The Longfather-tree of Master Samwise"

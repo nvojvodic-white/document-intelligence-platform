@@ -1,0 +1,5 @@
+# Holfast Gardner
+
+Source: https://lotr.fandom.com/wiki/Holfast_Gardner
+
+Holfast Gardener was a hobbit of the Shire . Born in the year FO 41 , he was the son of Frodo Gardner , and was thus the grandson of Samwise Gamgee . Nothing else of his life is known, though he likely resided at Bag End . Translations Foreign Language Translated name Arabic هولفاست غاردنر Armenian Հոլֆաստ Գարդներ Azerbaijani Holfast Qardner Bengali হলফাস্ট গার্ডনার Bulgarian Cyrillic Холфаст Градинаски Chinese 霍尔法斯特·加德纳 Finnish Holfast Tarhuri Georgian ჰოლფასტი გარდნერი German Holfast Gärtner Greek Χόλφαστ Γκάρντνερ Hebrew הולפסט גארדנר Hindi होल्फास्ट गार्डनर Japanese ホルファスト・ガードナー Korean 홀파스트 가드너 Macedonian Cyrillic Холфаст Гарднер Malayalam ഹോൾഫാസ്റ്റ് ഗാർഡ്നർ Marathi हॉलफास्ट गार्डनर Mongolian Cyrillic Холфаст Гарднер Nepalese होल्फास्ट गार्डनर Pashto هولفاسټ ګارډنر Persian هولفاست گاردنر Polish Holfast Ogrodnik Punjabi ਹੋਲਫਾਸਟ ਗਾਰਡਨਰ Russian Холфаст Садовник Serbian Холфаст Гарднер (Cyrillic) Holfast Gardner (Latin) Thai โฮลฟาสต์ การ์ดเนอร์ Ukrainian Cyrillic Холфаст Гарднер Urdu ہولفاسٹ گارڈنر References ↑ The Lord of the Rings , Appendix C , "The Longfather-tree of Master Samwise"

@@ -1,0 +1,5 @@
+# Andwise Roper
+
+Source: https://lotr.fandom.com/wiki/Andwise_Roper
+
+Andwise Roper , also known as Andy , was a Hobbit of the Shire . History Andwise was the uncle of Samwise Gamgee . He was the first child of Hobson Gamgee and his unnamed wife and was born in TA 2923 (SR 1323). He had three younger siblings - Halfred , May and Hamfast (the father of Sam). Andwise was commonly known as Andy and had a son named Anson , who was born in TA 2961 . Andwise and his father, Hobson, were both rope-makers and owned a Rope-walk in the village of Tighfield . When Hobson Gamgee died in TA 2984 , Andwise took over the rope-walk. He taught Samwise Gamgee some of his knowledge of ropes. Translations Foreign Language Translated name Finnish Andvais Gamgi French Ansaget Cordier German Andweis Seiler Italian Andvise Cordaio Polish Andwise Powroźnik References ↑ The Lord of the Rings , The Fellowship of the Ring , " Lothlórien " ↑ The Lord of the Rings , The Two Towers , " The Taming of Sméagol " ↑ The Lord of the Rings : Appendix C , "The Longfather-tree of Master Samwise"

@@ -1,0 +1,5 @@
+# Holman the Greenhanded
+
+Source: https://lotr.fandom.com/wiki/Holman_the_Greenhanded
+
+This article is about the patriarch of the Greenhand family . For the son of Halfred, see Holman Greenhand . Holman the Greenhanded was a Hobbit of the Shire . Biography Holman was the patriarch of the Greenhand family. He married an unnamed wife and had five children, named Rowan , Halfred , Erling , Hending , and Rose . He was a cousin of both the Gamgee and Cotton families. Little else is known of his life, but his grandson, Holman Greenhand, became the gardener at Bag End , taking Hamfast as an apprentice. Hamfast became the gardener himself after some time, and his son Samwise Gamgee replaced him in turn. Translations Foreign Language Translated name Bulgarian Cyrillic Холман Зеленоръкия Finnish Hobittilan Kolo French Holman la Main-verte German Höhlenmann von Hobbingen Italian Forino dalla mano verde References ↑ The Lord of the Rings , Appendix C : Family Trees, The Longfather - Tree of Master Samwise

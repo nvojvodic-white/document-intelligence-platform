@@ -1,0 +1,5 @@
+# Fíriel Fairbairn
+
+Source: https://lotr.fandom.com/wiki/Fíriel_Fairbairn
+
+This article refers to the daughter of Elanor Gardner . For other namesakes, see Fíriel (disambiguation) . Fíriel Fairbairn was a Hobbit of Westmarch . Biography Fíriel was the daughter of Elanor Gardner and Fastred of Greenholm , and thus the granddaughter of Samwise Gamgee . She was one of the Fairbairns of Under-towers in the Westmarch of the Shire , and the sister of Elfstan Fairbairn . Nothing else of her life is known, though she may have been named for Fíriel , a princess of Gondor. Etymology Fíriel means "mortal woman" in the Quenya language. Translations Foreign Language Translated name Arabic فيريل فيربيرن Bulgarian Cyrillic Фириел Фейърбърн Chinese 費瑞爾·费尔贝恩 Finnish Fíriel Mesikersa German Fíriel Schönkind Hebrew פיריאל פיירברן Japanese フィリエル・フェアバーン Persian فیریل فیربرن Russian Фириэль Фейрбейрн Tajik Cyrillic Фириел Фоирбоирн Tamil பெரிஎல் ஃபேர்பெய்ர்ன் References ↑ The Adventures of Tom Bombadil , Preface, note 2 ↑ The Adventures of Tom Bombadil , Preface

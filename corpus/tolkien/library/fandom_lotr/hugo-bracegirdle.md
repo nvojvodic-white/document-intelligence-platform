@@ -1,0 +1,5 @@
+# Hugo Bracegirdle
+
+Source: https://lotr.fandom.com/wiki/Hugo_Bracegirdle
+
+Hugo Bracegirdle was a Hobbit of the Shire . Biography Hugo was the son of Bruno Bracegirdle and was born in SR 1350 . He attended the Farewell Party of Bilbo Baggins in TA 3001 , and afterwards received a book-case from Bilbo as a present and a joke; for Hugo borrowed many books during his life, both from Bilbo and others, and was very poor at returning them. Translations Foreign Language Translated name Arabic ? (Egyptian Arabic) هوجو براسيجيردل Armenian Ուգո ? Bulgarian Cyrillic Уго Вържиколан Dutch Hugo Brasgordel Finnish Hugo Piukkapaulan French Hugo Serreceinture\Hugo Sanglebuc Georgian უგო ბრესგერდული German Hugo Straffgürtel Japanese ウゴ・ブレースガードル Polish Hugon Bracegirdle Russian Уго Брейсгёрдл Sinhalese හියුගෝ බ්‍රේස්ගර්ඩ්ල් Tamil ஊகோ பிரேசுகர்டில் Yiddish יוגא בראַסדגאַרטל References ↑ The Lord of the Rings , Appendix C , "Boffin of the Yale" ↑ The Lord of the Rings , The Fellowship of the Ring , Book One, Ch. I: " A Long-expected Party "

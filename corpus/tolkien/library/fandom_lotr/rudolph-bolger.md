@@ -1,0 +1,5 @@
+# Rudolph Bolger
+
+Source: https://lotr.fandom.com/wiki/Rudolph_Bolger
+
+Rudolph Bolger was a Bolger Hobbit of the Shire , husband to Cora Goodbody . He was the son of Gundolpho Bolger and Alfrida of the Yale. He had two brothers: Gundahar and Gundahad . Translations Foreign Language Translated name Arabic رودولف بولجر Armenian Ռուդոլֆ Բոլջեր Azerbaijani (Southern) رودولف بولقر Belarusian Cyrillic Рудольф Болгер Breton Rodolf Bolger Bulgarian Cyrillic Рудолф Болгер Catalan Rodolf Bolger Chinese 鲁道夫·博哲 Dutch Rudolf Burger Estonian Ruudolf Bolger Finnish Ruutolffi Bolger French Rodolphe Bolgeurre Galician Rodolfo Bolger Georgian რუდოლფი ბოლჯერი German Rodolfo Bolgeri Greek Ροδόλφος Μπόλγκαρ Hebrew רודולף בולג'ר Indonesian Radulf Bolger Japanese ルドルフ・ボルジャー Korean 라둘푸스 볼거 Latin Radulfus Bolger Latvian Rūdolfs Bolger Manx Roolwer Bolger Persian رودولف بوگلر Portuguese Rodolfo Bolger Russian Рудольф Болджер Serbian Рудолф Болгер (Cyrillic) Rudolf Bolger (Latin) Spanish Rodolfo Bolger Ukrainian Cyrillic Рудольф Бульбер Vietnamese Radulf Bolger References ↑ The Lord of the Rings , Appendix C : "Bolger of Budgeford"

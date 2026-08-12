@@ -1,0 +1,5 @@
+# Hamfast Gardner
+
+Source: https://lotr.fandom.com/wiki/Hamfast_Gardner
+
+Hamfast Gardner was a hobbit of the Shire . Biography Hamfast was the seventh child and fourth son of Samwise Gamgee and Rosie Cotton . He had six younger siblings Daisy , Primrose , Bilbo , Ruby , Robin , and Tolman . Hamfast's namesake was his paternal grandfather, Hamfast Gamgee I, who around the Shire was known as the "Gaffer". He was the first child of Sam's not to be foreseen by Frodo . Etymology Hamfast was named after Sam's father, Hamfast Gamgee. He may also have been called Hamfast Gardner after his father, who became known as Sam Gardner because of his skill at gardening and his role in replanting the Shire after the War of the Ring. [ citation needed ] Translations Foreign Language Translated name Chinese 哈姆法斯特·加德納 Finnish Hamfast Gamgi French Hamfast Gamegie German Hamfast Gamdschie Hebrew האמפאסט גארדנר Russian Хэмфаст Гэмджи References ↑ The Lord of the Rings , Appendix C : "The Longfather-tree of Master Samwise"

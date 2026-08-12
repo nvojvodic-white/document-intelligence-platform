@@ -20,7 +20,17 @@ import pytest
 from moto import mock_aws
 
 BUCKET = "tolkien-corpus"
-CORPUS = Path(__file__).resolve().parents[1] / "corpus" / "tolkien"
+
+# A small fixture corpus, deliberately NOT the demo corpus in corpus/tolkien.
+# The demo corpus is ~2,300 documents; seeding it into moto for every test
+# would turn a 30-second suite into a several-minute one and make the expected
+# counters churn every time a document is added. The fixture is 12 files
+# carrying the same properties under test: a within-user duplicate, a
+# cross-user duplicate, and a unique document per user.
+CORPUS = Path(__file__).parent / "fixtures" / "corpus"
+
+# The demo corpus, checked for its own invariants by test_demo_corpus.py.
+DEMO_CORPUS = Path(__file__).resolve().parents[1] / "corpus" / "tolkien"
 
 
 @pytest.fixture()
@@ -70,6 +80,8 @@ def s3(core_env, monkeypatch):
         client.create_bucket(Bucket=BUCKET)
         for path in sorted(CORPUS.rglob("*.md")):
             key = path.relative_to(CORPUS).as_posix()
+            if "/" not in key:
+                continue  # the fixture's own README, not a document
             client.put_object(Bucket=BUCKET, Key=key, Body=path.read_bytes())
         yield client
 

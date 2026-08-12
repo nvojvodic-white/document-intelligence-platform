@@ -1,0 +1,5 @@
+# Thalin
+
+Source: https://lotr.fandom.com/wiki/Thalin
+
+! Non-canon alert The subject of this article originates from non-canonical sources. To learn about what is considered "canon", see LOTR:Canon . ! Thalin is a Dwarf hero created by Fantasy Flight Games for The Lord of the Rings: The Card Game , based in the 60 years between when the Dwarves reclaimed Erebor and when Bilbo relinquished the Ring in The Fellowship of the Ring . Card usage In the card game, Thalin is largely associated with committing to quests. Though he would typically not be the best choice, given his low willpower stat of 1, his effect allows him to injure every enemy coming out of the encounter deck as long as he commits. His attack value of 2 is solid enough for him to be used as an attacker regularly, though it may take a few turns to actually kill anything if Thalin is attacking alone. Thalin's defence of 2 is good enough to allow usage of him as a defender, though his health of 4 does not last forever, and not all enemies have an attack value of 2 or less. Community alternative artwork

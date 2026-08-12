@@ -1,0 +1,5 @@
+# Cotman
+
+Source: https://lotr.fandom.com/wiki/Cotman
+
+Cotman was a hobbit of the Shire and the son of Cottar , founder of the Cotton family. Biography Cotman was born in TA 2860 ( SR 1260 ), and was the elder brother of Carl . He married Rose Greenhand of Hobbiton , and their only recorded child was Holman Cotton . Translations Foreign Language Translated name Amharic ኮትማን Arabic كوتمان Armenian Քոթման Assamese কটমেন Belarusian Cyrillic Котмен Bengali কটম্যান Bulgarian Cyrillic Котман Cambodian ខូតមែន Dari کوتمن Finnish Töllilä Georgian კოტმანი German Hüttner Greek Κότμαν Gujarati કોટમેન Hebrew קוטמאן Hindi कॉटमैन Japanese コットマン Kannada ಕಾಟ್ಮನ್ Kazakh Котман (Cyrillic) Kotman (Latin) Korean 코트먼 Kyrgyz Cyrillic Котман Laotian ຄອດແມນ Macedonian Cyrillic Котман Malayalam കോട്ട്മാൻ Marathi कॉटमन Mongolian Cyrillic Котман Nepalese कोटम्यान Pashto کوټمن Persian کاتمن Punjabi ਕੋਟਮੈਨ Russian Котман Sanskrit कोटमैन् Serbian Котман (Cyrillic) Kotman (Latin) Sinhalese කොට්මන් Tamil காட்மேன் Tatar Котман Ukrainian Cyrillic Котман Yiddish קאָטמאַן References ↑ The Lord of the Rings , Appendix C , "The Longfather-tree of Master Samwise"

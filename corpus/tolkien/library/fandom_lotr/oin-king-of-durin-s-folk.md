@@ -1,0 +1,5 @@
+# Óin (King of Durin's Folk)
+
+Source: https://lotr.fandom.com/wiki/Óin_(King_of_Durin's_Folk)
+
+This article is about the king of Durin's Folk and the father of Náin II . For the dwarf of Thorin's Company , see Óin . Óin , was a Dwarf born either in the Ered Mithrin or the Lonely Mountain , and was the son of Glóin . Biography He succeeded his father as king in TA 2385 . He was also an ancestor to Balin , a member of Thorin and Company , as well as the friend of Bilbo Baggins and Gimli the Elf-friend. Óin's reign was largely uneventful while he and his people lived in the Grey Mountains. In the final years of his reign, Sauron returned to Dol Guldur in Mirkwood and his shadow spread. As well, the Orcs of the Misty Mountains multiplied, plundering Moria and occupying it for hundreds of years. Óin died in TA 2488 after a rule of one-hundred and three years and was succeeded by his son Náin II . King of Durin's Folk Preceded by Glóin Óin (King of Durin's Folk) Succeeded by Náin II TA 2385 - TA 2488 References

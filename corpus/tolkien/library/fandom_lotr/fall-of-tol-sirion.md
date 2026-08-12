@@ -1,0 +1,5 @@
+# Fall of Tol Sirion
+
+Source: https://lotr.fandom.com/wiki/Fall_of_Tol_Sirion
+
+"Can you see anything?" "Nothing. There's nothing." The descriptive majority of this article's text is unsourced , and should be supported with references . The Fall of Tol Sirion was a battle in which an army of Orcs and werewolves led by Sauron invaded and conquered the Elven fortress of Minas Tirith and its surroundings after Dagor Bragollach , forcing Orodreth (son of Angrod and nephew of Finrod Felagund) and the surviving Elves to flee. Battle After Dagor Bragollach, in FA 457 , a large army of Morgoth, led by Sauron and composed of werewolves and Orcs, attacked first Tol Sirion and then the fortress of Minas Tirith. Orodreth and his army could not withstand this force, and Tol Sirion fell quickly. Later, sons of Fëanor , Celegorm and Curufin, with some cavalry units, came to their aid and rescued Orodreth, enabling him to escape. The trio then went south to Nargothrond with the survivors. Sauron took command of the fortress and changed its name to Tol-in-Gaurhoth.

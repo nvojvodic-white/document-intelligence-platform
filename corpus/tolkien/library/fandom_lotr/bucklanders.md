@@ -1,0 +1,5 @@
+# Bucklanders
+
+Source: https://lotr.fandom.com/wiki/Bucklanders
+
+"Can you see anything?" "Nothing. There's nothing." The descriptive majority of this article's text is unsourced , and should be supported with references . The Bucklanders were the inhabitants of Buckland , located on the eastern borders of the Shire . History The Bucklanders acknowledged the " Master of Buckland " as their leader. The Brandybucks , descendants of Gorhendad Oldbuck who founded Buckland, were considered the most important family of the Bucklanders. They all had a strong Fallohidish strain in their blood, it is said, and this made them more adventurous than many of their more conservative neighbors in the Shire. They did not share the Shire-hobbits' fear of water, for example, and the Bucklanders' boats where often seen on the Brandywine River that bordered their land. On the eastern border of Buckland lay the dangerous Old Forest , and the constant threat of the dark trees made the Bucklanders somewhat hardier than typical hobbits. [ citation needed ]

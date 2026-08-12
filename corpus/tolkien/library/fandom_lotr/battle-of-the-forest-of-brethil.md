@@ -1,0 +1,5 @@
+# Battle of the forest of Brethil
+
+Source: https://lotr.fandom.com/wiki/Battle_of_the_forest_of_Brethil
+
+"It's not ready yet." "Ready for what?" " Reading. " The majority of this article, or particular section, is below the wiki's standards; please rewrite and improve. ! The title of this article is conjectural. While the content of this article is based on official information, the actual name of the subject is conjectural, and is yet to or cannot be officially named. ! The battle in which Glaurung, who attempted to rule the surrounding lands from Nargothrond, sent the Orcs under his command to attack Brethil when he learned the location of Turin, and the Orc army of Glaurung and Brethil's men led by Turin fought and Brethil's men won. Before the war, Turin broke his oath not to fight and took Gurthang. And in the war, He led Brethil men with Gurthang. Some Orcs who saw again black sword and escaped from the battle and survived gave the news of the black sword to Glaurung. And Glaurung proceeded to the forest of Brethil to kill Turin himself.

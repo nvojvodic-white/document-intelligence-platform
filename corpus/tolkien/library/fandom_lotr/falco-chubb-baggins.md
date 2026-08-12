@@ -1,0 +1,5 @@
+# Falco Chubb-Baggins
+
+Source: https://lotr.fandom.com/wiki/Falco_Chubb-Baggins
+
+Falco Chubb-Baggins was a Hobbit of the Shire . Biography Falco was born to Bingo Baggins and Chica (Chubb) Baggins . Falco had a daughter named Poppy Chubb-Baggins , who married Filibert Bolger . He was one of Bilbo 's cousins. He died in TA 2999 (SR 1399) after a life of ninety-six years of age. Portrayal in Adaptations Falco was apparently featured in a portrait seen on a wall amongst Bilbo's other relatives in Bag End in the The Hobbit (2003 video game) . Translations Foreign Language Translated name Arabic فالكو تشاب-باجنز Bulgarian Cyrillic Фалко Едробузов-Торбинс Chinese 法爾可·丘布-巴金斯 Finnish Falco Pönkeli-Reppuli French Falco Boulot-Sacquet \ Falco Fouineur-Sacquet German Falco Pausbacken-Beutlin Hebrew פאלקו צ'אב-בגינס Italian Falco Paffuti-Baggins Japanese ファルコ ・ バギンズ-チャッブ Persian فالکو چاب-بگینز Polish Falko Chubb-Baggins Russian Фалько Чабб-Бэггинс Spanish Falco Redondo-Bolsón References ↑ The Lord of the Rings , Appendix C : Family Trees, Baggins of Hobbiton

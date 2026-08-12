@@ -1,0 +1,5 @@
+# Hildigrim Took
+
+Source: https://lotr.fandom.com/wiki/Hildigrim_Took
+
+Hildigrim Took was the great-grandfather of Peregrin Took and Meriadoc Brandybuck , as well as one of the many uncles of Bilbo Baggins . Biography Hildigrim Took was the fourth child of Gerontius "The Old" Took and Adamanta (Chubb) Took . Hildigrim had three older siblings: Isengrim III , Hildigard , and Isumbras IV ; and eight younger siblings: Isembold , Hildifons , Isembard , Hildibrand , Belladonna , Donnamira , Mirabella , and Isengar . He was married to Rosa Baggins . His son, Adalgrim , was born when he was forty years old. He was a very long-lived hobbit and died in TA 2941 (SR 1341) at 101 years of age. Line of Tooks Gerontius Took Adamanta Chubb Hildigrim Rosa Baggins Numerous children Adalgrim Took Paladin II Eglantine Banks Three daughters Esmeralda Saradoc Brandybuck Pearl Pimpernel Pervinca Peregrin Diamond Meriadoc Brandybuck Faramir Goldilocks Gardner References ↑ The Lord of the Rings , Appendix C : Family Trees, Brandybuck of Buckland

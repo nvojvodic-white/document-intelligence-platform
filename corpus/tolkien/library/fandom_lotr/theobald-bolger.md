@@ -1,0 +1,5 @@
+# Theobald Bolger
+
+Source: https://lotr.fandom.com/wiki/Theobald_Bolger
+
+Theobald Bolger was a hobbit of the Shire . Theobald was born in TA 2861 (SR 1261) to Gundabald Bolger and Salvia Brandybuck . He had one child: Wilibald , who was born in TA 2904 (SR 1304). His date of death is unknown. Translations Foreign Language Translated name Arabic تيوبالت بولغر Armenian Թեոբալդ Բոլջեր Basque Tibalt Bolger Breton Tepot Bolger Bulgarian Cyrillic Теобалд Болгер Catalan Teobald Bolger Chinese 特奥巴尔德·波潔兒 Croatian Tibalt Bolger Danish Theobald Bulner Dutch Theobald Burger Finnish Thibaut Bolger French Thibaut Bolgeurre Galician Teobaldo Bolger Georgian თეობალდ ბოლჯერი Greek Θεοβάλδος Μπόλγκαρ Hebrew תאובלד בולג'ר Indonesian Thibaut Bolger Italian Teobaldo Bolgeri Japanese テオバルト・ボルジャー Korean 티발트 볼저 Latin Theobaldus Bolger Persian تئوبالد بولگر Polish Tybald Bolger Portuguese Teobaldo Bolger Russian Теобальд Болджер Spanish Teobaldo Bolger Swedish Thibaut Bolger Ukrainian Cyrillic Теобальд Болджер References ↑ The Lord of the Rings : Appendix C , "Bolger of Budgeford"

@@ -1,0 +1,5 @@
+# Farin
+
+Source: https://lotr.fandom.com/wiki/Farin
+
+This article is about the son of Borin . For the video game character, see Farin (Champion) . Farin was a Dwarf of the line of Durin's Folk . Biography Farin was the son of Borin and father of Fundin and Gróin . He was the grandfather of Óin , Glóin , Dwalin , and Balin , friends of Bilbo Baggins , and the Great-Grandfather of Gimli . He lived in the Lonely Mountain , although he was likely born in the Ered Mithrin . When Smaug descended upon the Lonely Mountain, Farin was forced to flee with Thráin II to Dunland where he lived out the remainder of his years. He was too old to have participated in the great war, the War of the Dwarves and Orcs ( TA 2790 - TA 2799 ), as his death came in the year TA 2803 . In adaptations In The Lord of the Rings Online , Farin appears in an extended flashback depicting the Battle of Azanulbizar , in which he fights alongside his sons and grandsons. References ↑ The Lord of the Rings , Appendix A : Annals of the Kings and Rulers, III: Durin's Folk

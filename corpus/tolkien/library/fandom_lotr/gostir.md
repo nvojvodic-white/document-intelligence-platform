@@ -1,0 +1,5 @@
+# Gostir
+
+Source: https://lotr.fandom.com/wiki/Gostir
+
+! The canonicity of this subject is uncertain. The precise canonical status of this article's subject is unclear. To find out about what is considered "canon" see LOTR:Canon . ! Gostir was the name of one of the dragons of Morgoth , about whom very little is told. Gostir possessed a dragon-name which had evolved from the older name Gorsthir . Etymology Gostir is a Ñoldorin name meaning "dread-glance", containing the elements gost ("dread, terror") and thîr ("look, face, expression, countenance"), as well as the root thē , meaning "look (see or seem)". In adaptations Middle-earth Role Playing Gostir appears as a white Cold-drake with red eyes who dwells north of Rhûn in Barl Syrnac in the Creatures of Middle-earth supplement of Middle-earth Role Playing . Gostir was said to be the older brother of Lhamthanc . References ↑ 1.0 1.1 1.2 The History of Middle-earth , Vol. V: The Lost Road and Other Writings , Part Three: " The Etymologies ", entry GOS-, GOTH- ↑ 2.0 2.1 The History of Middle-earth , Vol. V: The Lost Road and Other Writings , Part Three: " The Etymologies ", entry THĒ-

@@ -1,0 +1,5 @@
+# Vairë (Elf)
+
+Source: https://lotr.fandom.com/wiki/Vairë_(Elf)
+
+This article is about the wife of the Elf Lindo . For the the Valier , see Vairë . ! This content is considered pre-canon. While the subject of this article is based on official information, it was replaced, emended, or abandoned in later stages of the legendarium . ! Vairë was an Elf of Tol Eressëa and one of the keepers of the Cottage of Lost Play . Biography Vairë was the daughter of Tulkastor , one of the earliest dwellers of Tol Eressëa. She married Lindo and lived in the Cottage with her husband where they both entertained many visitors, including the hosting of the Man Ælfwine (Eriol) who visited there during his travels. She was very wise in many things, and talked with Ælfwine, explaining to him things about the household. Etymology Vairë was a Quenya word that meant 'weaver'. References ↑ The History of Middle-earth , Vol. I: The Book of Lost Tales Part One , chapter I: " The Cottage of Lost Play " ↑ The Complete Guide to Middle-earth

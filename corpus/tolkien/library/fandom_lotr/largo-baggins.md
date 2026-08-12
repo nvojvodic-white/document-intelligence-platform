@@ -1,0 +1,5 @@
+# Largo Baggins
+
+Source: https://lotr.fandom.com/wiki/Largo_Baggins
+
+This article is about the Baggins . For the Rings of Power character, see Largo Brandyfoot . Largo Baggins was a hobbit of the Shire and the great-grandfather of Frodo Baggins . Biography Largo Baggins was born in the year TA 2820 (SR 1220). He was the fourth son of Balbo and Berylla Baggins . Largo had three older siblings – Mungo , Pansy and Ponto and a younger sister Lily . He married Tanta Hornblower and they had a son, Fosco, born in TA 2864 (SR 1264). Largo died in 2912 (SR 1312). Translations Foreign Language Translated name Arabic لارغو باجنز Armenian Լարգո Բեգինս Bulgarian Cyrillic Ларго Баггинс Chinese 拉哥·巴金斯 Finnish Largo Reppuli French Largo Sacquet German Largo Beutlin Hebrew לארגו באגינס Japanese ラーゴ・バギンズ Kazakh Ларго Бэггинс (Cyrillic) Largo Béggïns (Latin) Korean 라르고 배긴스 Persian لارگو بگینز Russian Ларго Бэггинс Serbian Ларго Багинс (Cyrillic) Largo Bagins (Latin) Ukrainian Cyrillic Ларго Торбин Urdu لارگو بیگنز References ↑ The Lord of the Rings , Appendix C , "Baggins of Hobbiton"

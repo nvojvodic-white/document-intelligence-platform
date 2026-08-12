@@ -1,0 +1,5 @@
+# Perry-the-Winkle
+
+Source: https://lotr.fandom.com/wiki/Perry-the-Winkle
+
+Perry-the-Winkle was once a Hobbit of Michel Delving and is the protagonist of the homonymous nursery rhyme , found in The Adventures of Tom Bombadil and Other Verses from the Red Book . Biography When the Lonely Troll wandered through Michel Delving, seeking friends, the secretive and scared Hobbits that he met started to run and hide at his sight. Only Perry-the-Winkle befriended the troll, after finding him crying outside the Lockholes . Because the troll was a very good cook, Perry fed him generously. Other hobbits, when hearing that the troll has this skill, visited Perry asking for food, but he refused them, as they had refused to be the troll's friend. Etymology The real name of the character is unknown, because "Perry-the-Winkle" is clearly a nickname. The etymology of this nickname could be related to the word Periwinckle , that is the name of a marine mollusc and of a creeping plant. References ↑ The Adventures of Tom Bombadil and Other Verses from the Red Book , no. 8: " Perry-the-Winkle " ↑ Jim Allan, "Giving of Names" in An Introduction to Elvish (1978)

@@ -1,0 +1,5 @@
+# Daisy Gardner
+
+Source: https://lotr.fandom.com/wiki/Daisy_Gardner
+
+Daisy Gardner , born in SR 1433 , was the eighth child and fourth daughter of Samwise Gamgee and his wife Rosie (née Cotton) Gamgee . Biography Daisy had five younger siblings: Primrose , Bilbo , Rudy , Robin , and Tolman . Her namesake was apparently her paternal aunt, Daisy Gamgee . She was the first daughter of Sam's not to be foreseen by Frodo Baggins . Translations Foreign Language Translated name Chinese (Simplified) 雏菊园丁 Dutch Daisy Tuinman Finnish Daisy Puutarhuri French Marguerite jardinière German Gänseblümchen-Gärtner Hebrew דייזי גנן Hindi डेज़ी माली Hungarian Daisy Kertész Indonesian Daisy Tukang Kebun Irish Garraíodóir Daisy Italian Margherita Giardiniere Japanese デイジー・ガーデナー Korean 데이지 정원사 Persian دیزی باغبان Polish Stokrotka Ogrodniczka Portuguese Margarida Jardineira Russian Дейзи Гарденер Spanish Margarita jardinera Swahili Daisy bustani Turkish Papatya Bahçıvanı Ukrainian Cryllic Дейзі Садівник Vietnamese Người làm vườn hoa cúc Welsh Daisy Garddwr References ↑ The Lord of the Rings , Appendix C , "Baggins of Hobbiton"

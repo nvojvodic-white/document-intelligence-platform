@@ -1,0 +1,5 @@
+# Folco Boffin
+
+Source: https://lotr.fandom.com/wiki/Folco_Boffin
+
+Folco Boffin was a Hobbit of the Shire . Biography Folco was born in TA 2978 (SR 1378) to Vigo Boffin and his unnamed wife. He was friend of Frodo Baggins , he was also fond of Bilbo Baggins and was often found going in and out of Bag End while it belonged to them. He along with Meriadoc Brandybuck , Peregrin Took , Samwise Gamgee , and Fredegar Bolger helped Frodo to move from Bag End to his new home in Crickhollow in Buckland . In adaptations Middle-earth Strategy Battle Game Folco Boffin appears in the Middle-earth Strategy Battle Game . He was first introduced in the 2019 supplement Scouring of the Shire . Translations Foreign Language Translated name Arabic فولكو بوفين Bulgarian Cyrillic Фолко Многознай Czech Folko Bulík Dutch Folco Boffer French Folco Boffine / Foulque Bophin German Folko Boffin Hebrew פולקו בופין Persian فولکو بوفین Polish Folko Boffin Russian Фолко Боффин Ukrainian Cyrillic Фолко Боффен References ↑ The Lord of the Rings , The Fellowship of the Ring ↑ The Lord of the Rings , Appendix C : Family Trees, Boffin of the Yale

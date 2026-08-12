@@ -1,0 +1,5 @@
+# Nuin
+
+Source: https://lotr.fandom.com/wiki/Nuin
+
+! This content is considered pre-canon. While the subject of this article is based on official information, it was replaced, emended, or abandoned in later stages of the legendarium . ! Nuin was an Elf of Hisildi , which is an elven kindred mentioned in earlier versions of the legendarium . History Against the will of his king Tû , the wise Hisildë Nuin was wandering in Murmenalda when he stumbled upon the humans Ermon and Elmir , who were still sleeping. With the first rise of the Sun in the West, Ermon and Elmir awoke and were the only two witnesses of the first sunrise. Nuin taught them to speak, and for this reason he gained the nickname Father of Speech . When the War of Palisor between the Elves and the army of Melko , formed of Goblins and Nauglath , broke out, only the folk of Ermon remained faithful to the Elves. Unfortunately, Nuin died in the war. References ↑ The History of Middle-earth , Vol. I: The Book of Lost Tales Part One , chapter X: " Gilfanon's Tale: The Travail of the Noldoli and the Coming of Mankind "

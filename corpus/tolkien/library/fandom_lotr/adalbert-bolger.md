@@ -1,0 +1,5 @@
+# Adalbert Bolger
+
+Source: https://lotr.fandom.com/wiki/Adalbert_Bolger
+
+Adalbert Bolger was a hobbit of the Shire . Biography He was born in the year SR 1301 to Rudibert Bolger and Amethyst Hornblower . At some point prior to SR 1342 , he married Gerda Boffin , by whom he became the father of Filibert Bolger . He presumably lived in or near Budgeford until his death in SR 1397 ; nothing further is known of his life. Translations Foreign Language Translated name Arabic أدالبرت بولغر Armenian Ադալբերտ Բոլջեր Belarusian Cyrillic Адальберт Болгер Bulgarian Cyrillic Адалберт Болгер Chinese 阿达尔贝特·博哲 Dutch Adalbert Burger French Adalbert Bolgeurre Galician Adalberto Bolger Georgian ადალბერტ ბოლჯერი Greek Αδαλβέρτος Μπόλγκαρ Hebrew אדלברט בולג'ר Italian Adalberto Bolgeri Japanese アダルベルト・ボルジャー Korean 아달베르트 볼저 Latin Adalbertus Bolger Macedonian Cyrillic Алдеберт Болгер Persian آدالبرت بولگر Portuguese Adalberto Bolger Russian Адалберт Болджер Spanish Adalberto Bolger Ukrainian Cyrillic Адальберт Болджер References ↑ The Lord of the Rings , Appendix C , "Bolger of Budgeford"

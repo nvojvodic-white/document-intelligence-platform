@@ -1,0 +1,5 @@
+# Pearl Took
+
+Source: https://lotr.fandom.com/wiki/Pearl_Took
+
+Pearl Took was a hobbit of the Shire , and a sister of Peregrin Took . Biography Pearl was the daughter of Paladin II Took and his wife Eglantine Banks . She was the eldest child of her family, which included brother Peregrin Took and two sisters, Pimpernel and Pervinca . Pearl was born in TA 2975 (SR 1375), making her about fifteen years older than Pippin. Pearl served as an attendant to the Took family Matriarch , Lalia (Clayhanger) Took , at the time of Lalia 's death in SR 1401 . There was some belief that Pearl deliberately tipped Lalia out of her wheelchair, thus causing her death. As the Matriarch was not well-liked, this act was lauded by the other Tooks . Pearl likely died sometime before the year 63 of the Fourth Age when Pippin left the Shire to live in Gondor . Etymology Like many female hobbits, Pearl was named after a jewel or a flower. References ↑ The Lord of the Rings , Appendix C : Family Trees, Took of Great Smials

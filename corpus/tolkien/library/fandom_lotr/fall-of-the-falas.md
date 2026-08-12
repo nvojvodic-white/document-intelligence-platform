@@ -1,0 +1,5 @@
+# Fall of the Falas
+
+Source: https://lotr.fandom.com/wiki/Fall_of_the_Falas
+
+"Can you see anything?" "Nothing. There's nothing." The descriptive majority of this article's text is unsourced , and should be supported with references . The Fall of the Falas was a war that followed the Nírnaeth Arnoediad , resulting in the invasion and destruction of Círdan 's kingdom of Falas by Morgoth 's armies, and the killing of many Elves . At this point, Morgoth had conquered most of Middle-earth and the state of the Free Peoples was dire outside the closed realm of Doriath and most of the Ñoldorin realms destroyed except the hidden realms of Gondolin and Nargothrond . Battle After Morgoth's crushing victory at Nirnaeth Arnoediad, the Orcs invaded northern Beleriand and conquered many regions. Many Sindar Elves sought refuge in Cirdan's kingdom of Falas. Morgoth sent a large force to Falas. Although the Elves resisted, all the ports of Falas and Falas itself fell. Many Elves were killed or taken prisoner, while some escaped. Círdan was among the survivors, and taking Gil-galad with him, he fled by ship to the Isle of Balar , where he established a new realm.

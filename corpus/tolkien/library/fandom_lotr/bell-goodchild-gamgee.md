@@ -1,0 +1,5 @@
+# Bell (Goodchild) Gamgee
+
+Source: https://lotr.fandom.com/wiki/Bell_(Goodchild)_Gamgee
+
+Bell Gamgee , born Bell Goodchild was a hobbit of the Shire . History Bell was born around TA 2926 (SR 1326). She was the wife of Hamfast "the Gaffer" Gamgee and mother of Hamson , Halfred , Daisy , May , Samwise , and Marigold Cotton . Her son Samwise became one of the most famous of hobbit-kind who helped Frodo on his journey to Mount Doom . In adaptations Bell Goodchild appeared in the 2003 video game The Hobbit as a child playing hide-and-seek in the Old Mill with other hobbits. Translations Foreign Language Translated name Arabic بيل (غودتشايلد) غامجي Bulgarian Cyrillic Бел (Гудчайлд) Майтапер Catalan Campaneta Bonafilla Chinese 贝尔 (古德柴尔德) 詹吉 Finnish Kello (Kilttilä) Gamgi French Bell (Bonenfant) Gamgie German Bell (Gutkind) Gamdschie Hebrew בל (גודצ'יילד) גמג'י Japanese ベル (グッドチャイルド) ギャムジー Kazakh Белл (Гудчайлд) Гэмджи (Cyrillic) Bell (Goodchaild) Gamji (Latin) Persian بل (گودچایلد) گمجی Polish Bella (Goodchild) Gamgee Russian Бэлл (Гудчайлд) Гэмджи Ukrainian Cyrillic Белл (Гудчайлд) Ґамґее

@@ -1,0 +1,5 @@
+# Eglantine (Banks) Took
+
+Source: https://lotr.fandom.com/wiki/Eglantine_(Banks)_Took
+
+Eglantine Took , née Banks was a hobbit of the Shire . She was a member of the Banks family and was the mother of Peregrin Took . Biography Eglantine Banks was born sometime in the late Third Age , and at some point married Paladin Took , who later became Thain Paladin II. Eglantine was the mother four children: Pearl in TA 2975 , Pimpernel in TA 2979 , Pervinca in TA 2985 , and Peregrin (called Pippin) in TA 2990 . She and her family attended Bilbo's Farewell Birthday Party on September 22 , 3001 . Eglantine's date of death is not known. Etymology An Eglantine is a wild rose. This was in keeping with the Hobbit tradition of naming girls after flowers. Line of Tooks Gerontius Took Adamanta Chubb Hildigrim Rosa Baggins Numerous children Adalgrim Took Paladin II Eglantine Banks Three daughters Esmeralda Saradoc Brandybuck Pearl Pimpernel Pervinca Peregrin Diamond Meriadoc Brandybuck Faramir Goldilocks Gardner References ↑ The Lord of the Rings , Appendix C : Family Trees, Took of Great Smials

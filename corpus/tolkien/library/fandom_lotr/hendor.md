@@ -1,0 +1,5 @@
+# Hendor
+
+Source: https://lotr.fandom.com/wiki/Hendor
+
+Hendor was an Elf of Gondolin . Biography Hendor was a house-carle and servant of Idril Celebrindal during the First Age . It is told that Hendor carried Eärendil , when he was a child, to safety amid the Fall of Gondolin when they, Tuor , and others were assailed by wolf-riders. Translations Foreign Language Translated name Amharic ሐንዶር Arabic حيندور Armenian Հենդոր Assamese হেণ্ডৰ Belarusian Cyrillic Хендор Bengali হেন্ডর Bulgarian Cyrillic Хендор Georgian ჰენდორი Greek Χέντορ Gujarati હેંડર Hebrew חינדור Hindi हेन्दोर Japanese ヘンドール Kannada ಹೆಂಡರ್ Kazakh Хендор (Cyrillic) Xendor (Latin) Korean 헨 도르 Kyrgyz Cyrillic Хендор Macedonian Cyrillic Хендор Marathi हेंडर Mongolian Cyrillic Hэндор Nepalese हेन्डर Persian هندوره Punjabi ਹੈਂਡਰ Russian Хендор Sanskrit हेन्दोर् Serbian Хендор (Cyrillic) Hendor (Latin) Sinhalese හෙන්ඩර් Tajik Cyrillic Ҳендор Tamil ஹென்டர் Telugu హెండర్ Thai ฮเนดโร Ukrainian Cyrillic Хендор Uzbek Ҳендор (Cyrillic) Hendor (Latin) Yiddish הענדאָר References ↑ The History of Middle-earth , Vol. II: The Book of Lost Tales Part Two , chapter III: " The Fall of Gondolin "
