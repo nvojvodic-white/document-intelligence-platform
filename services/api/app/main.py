@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Response
+from app.api.auth_routes import router as auth_router
 from app.rag.routes import router as rag_router
 from app.observability.tracing import setup_tracing
 from app.observability.metrics import get_metrics
@@ -18,7 +19,8 @@ app = FastAPI(
 
 app.add_middleware(APIKeyMiddleware)
 FastAPIInstrumentor.instrument_app(app)
-app.include_router(rag_router, prefix="/api/v1/rag")
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(rag_router, prefix="/api/v1/rag", tags=["chat"])
 
 
 @app.get("/health")
