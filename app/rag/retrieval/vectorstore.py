@@ -109,8 +109,14 @@ def get_hybrid_retriever(
 def get_retriever(k: int = 4, kind: str = "dense") -> BaseRetriever:
     """Swappable retriever factory.
 
-    kind in {dense, sparse, hybrid (50/50), hybrid_40_60, hyde, multi_query,
-    pdr, semantic, turbovec}.
+    kind in {dense, sparse, hybrid (50/50), hybrid_40_60, hyde, multi_query}.
+
+    The semantic / pdr / turbovec kinds were dropped in the multi-tenant fork:
+    each needs a second prebuilt index of its own, so per-user routing would
+    mean a second embedding pass per user at sync time. The kinds kept here
+    reach the same routing variety at no extra embedding cost - sparse builds
+    from the user's own chunk rows, and hyde / multi_query are query transforms
+    over the user's dense collection.
     """
     if kind == "sparse":
         return get_sparse_retriever(k=k)
@@ -126,16 +132,4 @@ def get_retriever(k: int = 4, kind: str = "dense") -> BaseRetriever:
         from app.rag.retrieval.multi_query import get_multi_query_retriever
 
         return get_multi_query_retriever(k=k)
-    if kind == "pdr":
-        from app.rag.retrieval.pdr import get_pdr_retriever
-
-        return get_pdr_retriever(k=k)
-    if kind == "semantic":
-        from app.rag.retrieval.semantic import get_semantic_retriever
-
-        return get_semantic_retriever(k=k)
-    if kind == "turbovec":
-        from app.rag.retrieval.turbovec import get_turbovec_retriever
-
-        return get_turbovec_retriever(k=k)
     return get_dense_retriever(k=k)

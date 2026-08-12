@@ -80,8 +80,12 @@ class AgentState(TypedDict, total=False):
     trace: Annotated[list[str], add]
 
 
+# Routing table. The pre-fork build measured definitional -> semantic, but the
+# semantic index cannot be rebuilt per-user without a second embedding pass, so
+# definitional now takes hybrid: BM25 over the user's own chunk rows rescues the
+# rare-entity matches ("mithril", "Bombadil") that motivated semantic there.
 ROUTE_TO_RETRIEVER: dict[Route, str] = {
-    "definitional": "semantic",
+    "definitional": "hybrid",
     "multi_hop": "hyde",
     "general": "dense",
 }
