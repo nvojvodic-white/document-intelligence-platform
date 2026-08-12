@@ -5,9 +5,15 @@ append-only with a per-session monotonic turn_index. Reads use a sliding window
 (last N turns) for the synthesize prompt + coref rewriter. Old data ages out
 via prune_expired() as a maintenance task (no implicit deletion on writes).
 
-Path is env-overridable (CONV_DB_PATH) so test/eval scripts can use a
-throwaway DB. Matches the pattern of app/agent/store.py's DB_PATH so the two
-SQLite stores behave consistently.
+Path is env-overridable (CONV_DB_PATH) so test scripts can use a throwaway DB,
+but it defaults to sitting beside the platform database under DATA_DIR rather
+than to a path relative to the working directory.
+
+That default matters: as a relative path it resolved to /app/data inside the
+container, which is the image's own writable layer and not the mounted volume,
+so every restart silently discarded the conversation history while the platform
+database beside it survived. Deriving from DATA_DIR keeps the two stores in the
+same place by construction.
 """
 import os
 import sqlite3
@@ -15,7 +21,9 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 
-DB_PATH = os.getenv("CONV_DB_PATH", "data/conversations.db")
+from core.config import DATA_DIR
+
+DB_PATH = os.getenv("CONV_DB_PATH") or str(DATA_DIR / "conversations.db")
 
 # 30 days. Bounded growth without aggressive expiry. prune_expired() is an
 # explicit maintenance call, not implicit on every write, so this constant is

@@ -4,6 +4,7 @@ import type {
   DevUser,
   Directory,
   IndexedFile,
+  StoredTurn,
   StreamFrame,
   SyncRun,
 } from './types'
@@ -133,6 +134,30 @@ export async function removeFile(fileId: string): Promise<{ vectors_dropped: num
 }
 
 // --- chat -------------------------------------------------------------------
+
+/**
+ * Prior turns for a session, oldest first.
+ *
+ * The server namespaces session ids by the verified user, so this can only ever
+ * return the caller's own conversation even if the id were guessed.
+ */
+export async function fetchTurns(
+  sessionId: string,
+  limit = 50,
+): Promise<StoredTurn[]> {
+  const res = await fetch(
+    `${BASE}/rag/sessions/${encodeURIComponent(sessionId)}/turns?limit=${limit}`,
+    { headers: headers() },
+  )
+  return (await json<{ turns: StoredTurn[] }>(res)).turns
+}
+
+export async function clearSession(sessionId: string): Promise<void> {
+  await fetch(`${BASE}/rag/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+}
 
 /**
  * Stream an answer. Frames arrive as SSE; the caller gets each one as it lands.

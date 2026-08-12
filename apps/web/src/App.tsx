@@ -68,12 +68,16 @@ export default function App() {
 
       {/* Keyed on the user so switching identity remounts everything. Reusing
           the mounted tree would leave the previous user's data on screen. */}
-      {user ? <Workspace key={user.user_id} /> : <p>Pick a user to begin.</p>}
+      {user ? (
+        <Workspace key={user.user_id} userId={user.user_id} />
+      ) : (
+        <p>Pick a user to begin.</p>
+      )}
     </div>
   )
 }
 
-function Workspace() {
+function Workspace({ userId }: { userId: string }) {
   const [datasources, setDatasources] = useState<Datasource[]>([])
   const [directories, setDirectories] = useState<Directory[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -126,7 +130,7 @@ function Workspace() {
       </section>
       <section>
         <h2>4. Ask</h2>
-        <Chat />
+        <Chat userId={userId} />
       </section>
     </div>
   )
@@ -337,11 +341,67 @@ function DirectoryRow({
   )
 }
 
-function Chat() {
+/**
+ * A session id that survives switching users.
+ *
+ * Switching identity remounts the whole workspace (it is keyed on the user), so
+ * a session id generated at mount time would be a new one every time and the
+ * previous conversation would be unreachable - the turns are still on the
+ * server, but nothing knows their id. Storing it per user makes returning to a
+ * user return to their conversation.
+ */
+function sessionIdFor(userId: string): string {
+  const key = `session:${userId}`
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = `s-${Math.random().toString(36).slice(2)}`
+    localStorage.setItem(key, id)
+  }
+  return id
+}
+
+function Chat({ userId }: { userId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [question, setQuestion] = useState('')
   const [busy, setBusy] = useState(false)
-  const sessionId = useRef(`s-${Math.random().toString(36).slice(2)}`)
+  const [hydrating, setHydrating] = useState(true)
+  const sessionId = useRef(sessionIdFor(userId))
+
+  // Load prior turns for this user. Only role and content are persisted, so
+  // hydrated messages render without route/grade/citation badges - correct,
+  // because those were never stored and inventing them after the fact would be
+  // worse than omitting them.
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const turns = await api.fetchTurns(sessionId.current)
+        if (cancelled) return
+        setMessages(
+          turns.map((t) => ({
+            role: t.role,
+            content: t.content,
+            hydrated: true,
+          })),
+        )
+      } catch {
+        // An unreadable history is not worth blocking a new conversation over.
+      } finally {
+        if (!cancelled) setHydrating(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const reset = async () => {
+    await api.clearSession(sessionId.current)
+    localStorage.removeItem(`session:${userId}`)
+    sessionId.current = sessionIdFor(userId)
+    setMessages([])
+  }
 
   const ask = async () => {
     const q = question.trim()
@@ -388,6 +448,7 @@ function Chat() {
   return (
     <div>
       <div className="chat">
+        {hydrating && <div className="note">loading conversation…</div>}
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
             <div>{m.content || (m.pending ? '…' : '')}</div>
@@ -395,6 +456,9 @@ function Chat() {
               <div className="meta">
                 route {m.route} · retrieval graded {m.grade}
               </div>
+            )}
+            {m.hydrated && m.role === 'assistant' && (
+              <div className="meta">from history · citations not stored per turn</div>
             )}
             {m.sources && m.sources.length > 0 && <Citations sources={m.sources} />}
           </div>
@@ -410,6 +474,11 @@ function Chat() {
         <button onClick={ask} disabled={busy}>
           ask
         </button>
+        {messages.length > 0 && (
+          <button onClick={reset} disabled={busy}>
+            new conversation
+          </button>
+        )}
       </div>
     </div>
   )

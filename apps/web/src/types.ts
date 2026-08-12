@@ -72,6 +72,17 @@ export interface ChatMessage {
   route?: string
   grade?: string
   pending?: boolean
+  /** Loaded from history rather than streamed. Only role and content are
+   *  persisted, so a hydrated message has no citations to show. */
+  hydrated?: boolean
+}
+
+/** Shape returned by GET /rag/sessions/{id}/turns. */
+export interface StoredTurn {
+  role: 'user' | 'assistant'
+  content: string
+  turn_index: number
+  timestamp: number
 }
 
 /** SSE frames from /rag/agent_query_stream_v2. */

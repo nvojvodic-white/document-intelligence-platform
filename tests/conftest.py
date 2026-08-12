@@ -54,6 +54,11 @@ def core_env(tmp_path, monkeypatch):
         "core.repositories",
         "core.vectors",
         "core.sync",
+        # Resolves its path from DATA_DIR at import time, so without a reload it
+        # keeps whichever tmp_path was current when some earlier test first
+        # imported it - and then writes one test's turns into another's
+        # directory.
+        "app.rag.memory.store",
     ]
     reloaded = {}
     for name in modules:
