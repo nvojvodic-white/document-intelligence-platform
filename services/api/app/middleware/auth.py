@@ -11,6 +11,13 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         if request.url.path in EXEMPT_PATHS:
             return await call_next(request)
 
+        # CORS preflight carries no credentials by design, so gating it would
+        # reject every cross-origin request before the real call is ever made.
+        # The CORS middleware sits outside this one and normally answers OPTIONS
+        # first; this is here so a reordering cannot silently break the UI.
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         platform_key = os.getenv("PLATFORM_API_KEY")
         if not platform_key:
             # Auth disabled — no key configured
