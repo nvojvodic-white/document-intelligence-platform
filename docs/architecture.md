@@ -31,9 +31,10 @@ flowchart LR
 
     subgraph state[shared volume]
         DB[(SQLite<br/>WAL)]
-        CH[(Chroma<br/>one collection per user)]
         TS[(text store)]
     end
+
+    CH[(Chroma service<br/>one collection per user)]
 
     S3[(LocalStack S3<br/>tolkien-corpus)]
     LLM[Claude<br/>synthesis · classify · grade]
@@ -59,6 +60,10 @@ flowchart LR
 The API never calls the worker and the worker never calls the API. They meet only in the database:
 the API writes a `queued` run, the worker claims it with a conditional `UPDATE`. Dependencies run
 one way — `services/*` may import `core`, `core` never imports `services`.
+
+Two processes sharing state is also why Chroma is a service rather than a directory on the volume:
+its in-process client assumes sole ownership, and a reader during a write fails. SQLite survives
+the same arrangement only because WAL and `busy_timeout` are set for it.
 
 ## Data flow: object to citation
 

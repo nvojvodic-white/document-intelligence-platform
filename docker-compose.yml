@@ -1,12 +1,13 @@
 # The one-command path from a clean clone: docker compose up
 #
-# Five services. LocalStack stands in for S3, seed uploads the committed corpus
-# into it once and exits, api serves the request path, worker drains the sync
-# queue, and web serves the UI.
+# Six services. LocalStack stands in for S3, seed uploads the committed corpus
+# into it once and exits, chroma holds the vectors, api serves the request path,
+# worker drains the sync queue, and web serves the UI.
 #
 # api and worker run the same image with different commands. They are separate
 # processes so a long sync cannot take the request path down with it and so the
-# worker can be restarted on its own.
+# worker can be restarted on its own - which is exactly why chroma is a service
+# rather than a shared directory.
 
 services:
   localstack:
@@ -44,6 +45,24 @@ services:
         condition: service_healthy
     restart: "no"
 
+  # Vectors live behind a service because two processes use them. Chroma's
+  # in-process client assumes it owns its directory, so the API reading while
+  # the worker wrote failed mid-sync with "Error finding id".
+  chroma:
+    image: chromadb/chroma:1.5.9
+    volumes:
+      - chroma-data:/data
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD", "/bin/bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8000"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
   api:
     build: .
     ports:
@@ -56,6 +75,8 @@ services:
         required: false
     environment:
       - DATA_DIR=/data
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
       - S3_ENDPOINT_URL=http://localstack:4566
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -71,6 +92,8 @@ services:
     depends_on:
       seed:
         condition: service_completed_successfully
+      chroma:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
@@ -89,6 +112,8 @@ services:
         required: false
     environment:
       - DATA_DIR=/data
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
       - S3_ENDPOINT_URL=http://localstack:4566
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -98,6 +123,8 @@ services:
     depends_on:
       seed:
         condition: service_completed_successfully
+      chroma:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -115,3 +142,4 @@ services:
 volumes:
   platform-data:
   localstack-data:
+  chroma-data:

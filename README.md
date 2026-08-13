@@ -20,8 +20,8 @@ docker compose up --build
 
 Then open <http://localhost:5173>.
 
-Compose brings up five services: LocalStack (S3), a one-shot seed that uploads `corpus/tolkien`
-into the bucket, the API, the sync worker, and the web UI.
+Compose brings up six services: LocalStack (S3), a one-shot seed that uploads `corpus/tolkien`
+into the bucket, Chroma, the API, the sync worker, and the web UI.
 
 Verified from a clean build on Windows 11 + Docker Desktop 4.86 / engine 29.7.2: all four images
 build, the seed uploads 2,312 objects, and the whole walkthrough below runs with the numbers shown.
@@ -180,8 +180,11 @@ That choice is not free:
   `UPDATE` guarded by a partial unique index.
 - **Postgres is the first thing to swap in if a second worker is ever needed.** Claiming already
   has the right shape for it; what changes is the driver and the ability to run more than one.
-- Chroma is a local persistent client on a shared volume. It is fine for a demo-sized corpus and
-  would be the second thing replaced.
+- **Chroma runs as a service, not a shared directory.** Its in-process client assumes one process
+  owns its files, so the API reading while the worker wrote failed intermittently with
+  `Error executing plan: Internal error: Error finding id` — only during a sync, which is the worst
+  way for a bug to present. `CHROMA_HOST` switches to the service; on-disk mode is kept for tests
+  and single-process runs.
 
 ## Other trade-offs
 

@@ -22,7 +22,12 @@ import chromadb
 import numpy as np
 
 from core import repositories as repo
-from core.config import CHROMA_DIR, EMBEDDING_VERSION
+from core.config import (
+    CHROMA_DIR,
+    CHROMA_HOST,
+    CHROMA_PORT,
+    EMBEDDING_VERSION,
+)
 from core.embeddings import dimension, embed_query, embed_texts
 
 _client = None
@@ -34,11 +39,20 @@ _SAFE_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,40}$")
 
 
 def _get_client():
+    """HttpClient against the Chroma service, or an in-process store on disk.
+
+    Two processes share this store, and PersistentClient assumes it owns the
+    directory - so anything running the API and worker together must set
+    CHROMA_HOST. On-disk mode is for tests and single-process runs.
+    """
     global _client
     with _client_lock:
         if _client is None:
-            CHROMA_DIR.mkdir(parents=True, exist_ok=True)
-            _client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+            if CHROMA_HOST:
+                _client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+            else:
+                CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+                _client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     return _client
 
 
