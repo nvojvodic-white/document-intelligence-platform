@@ -1,41 +1,114 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --surface2: #22263a;
-  --border: #2e3250;
-  --accent: #7c6af7;
-  --accent-dim: #4c3fb0;
-  --text: #e8eaf6;
-  --text-dim: #8b90b0;
-  --green: #4caf82;
-  --red: #e05c6a;
-  --yellow: #f0a845;
-  --radius: 8px;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html, body, #root { height: 100%; }
+:root {
+  /* Near-black rather than pure black: pure black makes borders and elevation
+     impossible to read. */
+  --bg: #08090a;
+  --bg-raised: #0e0f11;
+  --surface: rgba(255, 255, 255, 0.026);
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+
+  --text: #f7f8f8;
+  --text-dim: #8a8f98;
+  --text-faint: #62666d;
+
+  --accent: #5e6ad2;
+  --accent-hover: #6f7ae0;
+  --accent-soft: rgba(94, 106, 210, 0.14);
+
+  --green: #4cb782;
+  --orange: #f2994a;
+  --red: #eb5757;
+  --blue: #4ea7fc;
+
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
+
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Display',
+    'Segoe UI', Inter, system-ui, sans-serif;
+  --mono: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
 
 body {
-  font-family: system-ui, 'Segoe UI', sans-serif;
+  font-family: var(--font);
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 12px;
-  background: var(--surface2);
-  padding: 1px 5px;
-  border-radius: 4px;
-  color: var(--text);
+/* Two faint washes of colour so the page is not a flat black rectangle. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 30rem at 12% -8%, rgba(94, 106, 210, 0.1), transparent 70%),
+    radial-gradient(48rem 26rem at 92% 0%, rgba(78, 167, 252, 0.06), transparent 70%);
+  z-index: 0;
 }
 
-pre {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 12px;
+code,
+kbd {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  letter-spacing: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+  background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

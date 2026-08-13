@@ -85,7 +85,7 @@ export interface StoredTurn {
   timestamp: number
 }
 
-/** SSE frames from /rag/agent_query_stream_v2. */
+/** SSE frames from /rag/agent_query_stream. */
 export type StreamFrame =
   | {
       type: 'metadata'

@@ -10,15 +10,7 @@ import type {
 } from './types'
 import './App.css'
 
-/**
- * The walkthrough, in one screen: log in, connect S3, browse, register a
- * directory, sync and watch the counters, ask a question, read the citations,
- * remove a file and see the answer change.
- *
- * Deliberately plain. UI polish is not scored, so this spends its complexity
- * budget on showing the things that are - sync counters read from the database,
- * dedup savings per run, and citations that name the source file.
- */
+/** Connect a datasource, sync a directory, ask questions over what you synced. */
 export default function App() {
   const [users, setUsers] = useState<DevUser[]>([])
   const [user, setUser] = useState<DevUser | null>(null)
@@ -39,40 +31,51 @@ export default function App() {
     }
   }
 
-  const logout = () => {
-    api.setToken(null)
-    setUser(null)
-  }
-
   return (
     <div className="app">
-      <header>
-        <h1>Document Intelligence</h1>
-        {user ? (
-          <div className="who">
-            signed in as <strong>{user.user_id}</strong>
-            <button onClick={logout}>switch user</button>
-          </div>
-        ) : (
-          <div className="who">
-            {users.map((u) => (
-              <button key={u.user_id} onClick={() => login(u.user_id)}>
-                log in as {u.user_id}
-              </button>
-            ))}
-          </div>
-        )}
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-mark" />
+          Document Intelligence
+          <span className="brand-sub">/ multi-tenant RAG</span>
+        </div>
+        <div className="switcher">
+          {users.map((u) => (
+            <button
+              key={u.user_id}
+              aria-current={user?.user_id === u.user_id}
+              onClick={() => login(u.user_id)}
+            >
+              <span className="avatar">{u.user_id[0]}</span>
+              {u.user_id}
+            </button>
+          ))}
+        </div>
       </header>
 
-      {error && <p className="error">{error}</p>}
-
-      {/* Keyed on the user so switching identity remounts everything. Reusing
-          the mounted tree would leave the previous user's data on screen. */}
-      {user ? (
-        <Workspace key={user.user_id} userId={user.user_id} />
-      ) : (
-        <p>Pick a user to begin.</p>
+      {!user && (
+        <>
+          <div className="hero">
+            <h1>
+              Your documents,
+              <br />
+              answerable.
+            </h1>
+            <p>
+              Connect storage, sync a directory into your own knowledge base, and
+              ask questions answered only from what you indexed.
+            </p>
+          </div>
+          <div className="gate">
+            {error && <div className="error">{error}</div>}
+            Pick a user above to begin.
+          </div>
+        </>
       )}
+
+      {/* Keyed on the user: switching identity remounts everything rather than
+          leaving the previous user's data on screen. */}
+      {user && <Workspace key={user.user_id} userId={user.user_id} />}
     </div>
   )
 }
@@ -83,13 +86,10 @@ function Workspace({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
-  // Callers ask for a reload by bumping a counter; the effect owns the fetch.
-  // The cancelled flag matters on user switch - the outgoing tree unmounts
-  // while its requests are still in flight, and without it a late response
-  // would set state on a dead component with the previous user's data.
   const refresh = useCallback(() => setReloadKey((k) => k + 1), [])
 
   useEffect(() => {
+    // cancelled guards against a late response repainting after a user switch.
     let cancelled = false
     const load = async () => {
       try {
@@ -112,27 +112,52 @@ function Workspace({ userId }: { userId: string }) {
   }, [reloadKey])
 
   return (
-    <div className="workspace">
-      {error && <p className="error">{error}</p>}
-      <section>
-        <h2>1. Datasource</h2>
-        <Datasources datasources={datasources} onChange={refresh} />
-      </section>
-      {datasources.length > 0 && (
-        <section>
-          <h2>2. Browse and register a directory</h2>
-          <Browser datasource={datasources[0]} onRegistered={refresh} />
-        </section>
-      )}
-      <section>
-        <h2>3. Directories</h2>
-        <Directories directories={directories} onChange={refresh} />
-      </section>
-      <section>
-        <h2>4. Ask</h2>
+    <main className="workspace">
+      <div className="col">
+        {error && <div className="error">{error}</div>}
+
+        <Panel step={1} title="Datasource" hint={`signed in as ${userId}`}>
+          <Datasources datasources={datasources} onChange={refresh} />
+        </Panel>
+
+        {datasources.length > 0 && (
+          <Panel step={2} title="Browse and register">
+            <Browser datasource={datasources[0]} onRegistered={refresh} />
+          </Panel>
+        )}
+
+        <Panel step={3} title="Directories" hint={`${directories.length} registered`}>
+          <Directories directories={directories} onChange={refresh} />
+        </Panel>
+      </div>
+
+      <div className="col col-side">
         <Chat userId={userId} />
-      </section>
-    </div>
+      </div>
+    </main>
+  )
+}
+
+function Panel({
+  step,
+  title,
+  hint,
+  children,
+}: {
+  step: number
+  title: string
+  hint?: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <span className="step">{step}</span>
+        <h2>{title}</h2>
+        {hint && <span className="hint">{hint}</span>}
+      </div>
+      <div className="panel-body">{children}</div>
+    </section>
   )
 }
 
@@ -163,21 +188,26 @@ function Datasources({
   return (
     <div>
       {datasources.map((d) => (
-        <div key={d.id} className="row">
-          <code>
-            s3://{d.config.bucket} ({d.kind})
-          </code>
+        <div key={d.id} className="item">
+          <span className="glyph">◈</span>
+          <span className="grow">
+            s3://{d.config.bucket}
+          </span>
+          <span className="pill succeeded">connected</span>
         </div>
       ))}
-      <div className="row">
-        <input value={bucket} onChange={(e) => setBucket(e.target.value)} />
-        <button onClick={connect} disabled={busy}>
-          {busy ? 'checking…' : 'connect S3'}
+      <div className="row" style={{ marginTop: datasources.length ? '0.6rem' : 0 }}>
+        <input
+          value={bucket}
+          onChange={(e) => setBucket(e.target.value)}
+          placeholder="bucket name"
+        />
+        <button className="primary" onClick={connect} disabled={busy}>
+          {busy ? 'Checking…' : 'Connect S3'}
         </button>
       </div>
-      {/* The bucket is probed before the datasource is recorded, so a typo
-          fails here rather than as a mystery sync failure later. */}
-      {error && <p className="error">{error}</p>}
+      {/* The bucket is probed before it is recorded, so a typo fails here. */}
+      {error && <div className="error" style={{ marginTop: '0.6rem' }}>{error}</div>}
     </div>
   )
 }
@@ -193,48 +223,71 @@ function Browser({
   const [dirs, setDirs] = useState<string[]>([])
   const [files, setFiles] = useState<{ key: string }[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     api
       .browse(datasource.id, path)
       .then((r) => {
+        if (cancelled) return
         setDirs(r.directories)
         setFiles(r.files)
         setError(null)
       })
-      .catch((e) => setError(String(e)))
+      .catch((e) => !cancelled && setError(String(e)))
+    return () => {
+      cancelled = true
+    }
   }, [datasource.id, path])
 
-  const parent = path.replace(/[^/]+\/$/, '')
+  const register = async () => {
+    setBusy(true)
+    try {
+      await api.registerDirectory(datasource.id, path)
+      onRegistered()
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <div>
       <div className="row">
-        <code>/{path}</code>
-        {path && <button onClick={() => setPath(parent)}>up</button>}
+        <span className="crumb">/{path}</span>
+        <span style={{ flex: 1 }} />
         {path && (
-          <button
-            onClick={async () => {
-              await api.registerDirectory(datasource.id, path)
-              onRegistered()
-            }}
-          >
-            register this directory
+          <button className="ghost" onClick={() => setPath(path.replace(/[^/]+\/$/, ''))}>
+            ↑ Up
+          </button>
+        )}
+        {path && (
+          <button className="primary" onClick={register} disabled={busy}>
+            Register
           </button>
         )}
       </div>
-      {error && <p className="error">{error}</p>}
+
+      {error && <div className="error" style={{ marginTop: '0.6rem' }}>{error}</div>}
+
       <ul className="tree">
         {dirs.map((d) => (
-          <li key={d}>
-            <button className="link" onClick={() => setPath(d)}>
-              📁 {d}
+          <li key={d} className="item">
+            <span className="glyph">▸</span>
+            <button className="link grow" onClick={() => setPath(d)}>
+              {d.replace(path, '') || d}
             </button>
           </li>
         ))}
         {files.map((f) => (
-          <li key={f.key}>📄 {f.key.split('/').pop()}</li>
+          <li key={f.key} className="item">
+            <span className="glyph">·</span>
+            <span className="grow">{f.key.split('/').pop()}</span>
+          </li>
         ))}
+        {dirs.length === 0 && files.length === 0 && (
+          <li className="empty">Nothing here.</li>
+        )}
       </ul>
     </div>
   )
@@ -248,33 +301,28 @@ function Directories({
   onChange: () => void
 }) {
   const [note, setNote] = useState<string | null>(null)
-  // Poll while anything is in flight. Counters live in the database, so this
-  // reads real progress rather than anything cached in the page.
-  const active = directories.some(
-    (d) => d.status === 'queued' || d.status === 'running',
-  )
 
+  // Counters live in the database, so polling shows real progress mid-run.
+  const active = directories.some((d) => d.status === 'queued' || d.status === 'running')
   useEffect(() => {
     if (!active) return
     const t = setInterval(onChange, 1000)
     return () => clearInterval(t)
   }, [active, onChange])
 
-  const sync = async (directoryId: string) => {
-    const res = await api.triggerSync(directoryId)
-    setNote(
-      res.already_in_progress
-        ? 'already in progress — showing the run already in flight'
-        : null,
-    )
+  const sync = async (id: string) => {
+    const res = await api.triggerSync(id)
+    setNote(res.already_in_progress ? 'Already in progress — showing the run in flight.' : null)
     onChange()
   }
 
-  if (directories.length === 0) return <p>No directories registered yet.</p>
+  if (directories.length === 0) {
+    return <div className="empty">No directories yet. Register one above.</div>
+  }
 
   return (
     <div>
-      {note && <p className="note">{note}</p>}
+      {note && <div className="note">{note}</div>}
       {directories.map((d) => (
         <DirectoryRow key={d.id} directory={d} onSync={sync} onChange={onChange} />
       ))}
@@ -294,62 +342,59 @@ function DirectoryRow({
   const [files, setFiles] = useState<IndexedFile[] | null>(null)
   const run = directory.latest_run
 
-  const toggle = async () => {
-    setFiles(files ? null : await api.listFiles(directory.id))
-  }
+  const toggle = async () => setFiles(files ? null : await api.listFiles(directory.id))
 
   return (
-    <div className="card">
-      <div className="row">
-        <code>{directory.path}</code>
-        <span className={`badge ${directory.status}`}>{directory.status}</span>
-        <button onClick={() => onSync(directory.id)}>sync</button>
-        <button onClick={toggle}>{files ? 'hide files' : `files (${directory.file_count ?? 0})`}</button>
+    <div className="dir">
+      <div className="dir-head">
+        <span className="path">{directory.path}</span>
+        <span className={`pill ${directory.status}`}>{directory.status}</span>
+        <button onClick={() => onSync(directory.id)}>Sync</button>
+        <button className="ghost" onClick={toggle}>
+          {files ? 'Hide' : `Files (${directory.file_count ?? 0})`}
+        </button>
       </div>
+
       {run && (
         <div className="counters">
-          seen {run.files_seen} · new {run.files_new} · skipped {run.files_skipped} ·
-          failed {run.files_failed} · deleted {run.files_deleted}
-          {/* The dedup receipt: embeddings paid for versus served from cache. */}
-          <span className="dedup">
-            embedded {run.chunks_embedded} · reused {run.chunks_reused} chunks ·
-            downloaded {run.bytes_downloaded} bytes
-          </span>
-          {run.error && <span className="error"> {run.error}</span>}
+          <span>seen <b>{run.files_seen}</b></span>
+          <span>new <b>{run.files_new}</b></span>
+          <span>skipped <b>{run.files_skipped}</b></span>
+          {run.files_failed > 0 && <span>failed <b>{run.files_failed}</b></span>}
+          {run.files_deleted > 0 && <span>deleted <b>{run.files_deleted}</b></span>}
+          <span>embedded <b>{run.chunks_embedded.toLocaleString()}</b></span>
+          <span className="win">reused <b>{run.chunks_reused.toLocaleString()}</b></span>
+          {run.error && <span style={{ color: 'var(--red)' }}>{run.error}</span>}
         </div>
       )}
+
       {files && (
         <ul className="files">
           {files.map((f) => (
-            <li key={f.id}>
-              <span>{f.provider_key}</span>
-              <code className="sha">{f.sha256?.slice(0, 10)}</code>
+            <li key={f.id} className="item">
+              <span className="glyph">·</span>
+              <span className="grow">{f.provider_key}</span>
+              <span className="fade">{f.sha256?.slice(0, 8)}</span>
               <button
+                className="ghost"
                 onClick={async () => {
                   await api.removeFile(f.id)
                   setFiles(await api.listFiles(directory.id))
                   onChange()
                 }}
               >
-                remove
+                Remove
               </button>
             </li>
           ))}
+          {files.length === 0 && <li className="empty">No files indexed.</li>}
         </ul>
       )}
     </div>
   )
 }
 
-/**
- * A session id that survives switching users.
- *
- * Switching identity remounts the whole workspace (it is keyed on the user), so
- * a session id generated at mount time would be a new one every time and the
- * previous conversation would be unreachable - the turns are still on the
- * server, but nothing knows their id. Storing it per user makes returning to a
- * user return to their conversation.
- */
+/** Session id kept per user so switching away and back returns to the same chat. */
 function sessionIdFor(userId: string): string {
   const key = `session:${userId}`
   let id = localStorage.getItem(key)
@@ -364,37 +409,27 @@ function Chat({ userId }: { userId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [question, setQuestion] = useState('')
   const [busy, setBusy] = useState(false)
-  const [hydrating, setHydrating] = useState(true)
   const sessionId = useRef(sessionIdFor(userId))
+  const scroller = useRef<HTMLDivElement>(null)
 
-  // Load prior turns for this user. Only role and content are persisted, so
-  // hydrated messages render without route/grade/citation badges - correct,
-  // because those were never stored and inventing them after the fact would be
-  // worse than omitting them.
+  // Only role and content are persisted, so hydrated turns have no citations.
   useEffect(() => {
     let cancelled = false
-    const load = async () => {
-      try {
-        const turns = await api.fetchTurns(sessionId.current)
+    api
+      .fetchTurns(sessionId.current)
+      .then((turns) => {
         if (cancelled) return
-        setMessages(
-          turns.map((t) => ({
-            role: t.role,
-            content: t.content,
-            hydrated: true,
-          })),
-        )
-      } catch {
-        // An unreadable history is not worth blocking a new conversation over.
-      } finally {
-        if (!cancelled) setHydrating(false)
-      }
-    }
-    load()
+        setMessages(turns.map((t) => ({ role: t.role, content: t.content, hydrated: true })))
+      })
+      .catch(() => undefined)
     return () => {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
+  }, [messages])
 
   const reset = async () => {
     await api.clearSession(sessionId.current)
@@ -424,16 +459,11 @@ function Chat({ userId }: { userId: string }) {
     try {
       await api.streamChat(q, sessionId.current, (frame) => {
         if (frame.type === 'metadata') {
-          patch((m) => ({
-            ...m,
-            sources: frame.sources,
-            route: frame.route,
-            grade: frame.grade,
-          }))
+          patch((m) => ({ ...m, sources: frame.sources, route: frame.route, grade: frame.grade }))
         } else if (frame.type === 'token') {
           patch((m) => ({ ...m, content: m.content + frame.content }))
         } else if (frame.type === 'error') {
-          patch((m) => ({ ...m, content: `error: ${frame.message}` }))
+          patch((m) => ({ ...m, content: `Error: ${frame.message}` }))
         } else if (frame.type === 'done') {
           patch((m) => ({ ...m, pending: false }))
         }
@@ -446,15 +476,36 @@ function Chat({ userId }: { userId: string }) {
   }
 
   return (
-    <div>
-      <div className="chat">
-        {hydrating && <div className="note">loading conversation…</div>}
+    <section className="panel chat-panel">
+      <div className="panel-head">
+        <span className="step">4</span>
+        <h2>Ask</h2>
+        {messages.length > 0 && (
+          <button className="ghost hint" onClick={reset} disabled={busy}>
+            New chat
+          </button>
+        )}
+      </div>
+
+      <div className="chat" ref={scroller}>
+        {messages.length === 0 && (
+          <div className="empty">
+            Answers come only from documents you have synced, with citations back
+            to the source file.
+          </div>
+        )}
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
-            <div>{m.content || (m.pending ? '…' : '')}</div>
+            <div className="bubble">
+              {m.content || (m.pending && (
+                <span className="typing">
+                  <span /><span /><span />
+                </span>
+              ))}
+            </div>
             {m.route && (
               <div className="meta">
-                route {m.route} · retrieval graded {m.grade}
+                route {m.route} · graded {m.grade}
               </div>
             )}
             {m.hydrated && m.role === 'assistant' && (
@@ -464,33 +515,31 @@ function Chat({ userId }: { userId: string }) {
           </div>
         ))}
       </div>
-      <div className="row">
+
+      <div className="composer">
         <input
           value={question}
           placeholder="Ask about your documents…"
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && ask()}
         />
-        <button onClick={ask} disabled={busy}>
-          ask
+        <button className="primary" onClick={ask} disabled={busy || !question.trim()}>
+          Ask
         </button>
-        {messages.length > 0 && (
-          <button onClick={reset} disabled={busy}>
-            new conversation
-          </button>
-        )}
       </div>
-    </div>
+    </section>
   )
 }
 
-/** Citations name the source file, which is what the user recognises. */
 function Citations({ sources }: { sources: Source[] }) {
   return (
     <ol className="sources">
       {sources.map((s, i) => (
-        <li key={s.chunk_id || i}>
-          <strong>{s.title}</strong> <code>{s.source}</code>
+        <li key={s.chunk_id || i} className="source">
+          <div className="name">
+            <span>{s.title}</span>
+            <span className="key">{s.source}</span>
+          </div>
           <div className="snippet">{s.snippet}</div>
         </li>
       ))}

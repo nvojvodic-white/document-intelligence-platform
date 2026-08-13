@@ -170,7 +170,7 @@ export async function streamChat(
   sessionId: string,
   onFrame: (frame: StreamFrame) => void,
 ): Promise<void> {
-  const res = await fetch(`${BASE}/rag/agent_query_stream_v2`, {
+  const res = await fetch(`${BASE}/rag/agent_query_stream`, {
     method: 'POST',
     headers: headers({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ question, session_id: sessionId }),
