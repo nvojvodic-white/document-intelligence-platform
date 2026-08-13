@@ -41,6 +41,9 @@ class DatasourceOut(BaseModel):
     # Echoed because it is a variable name, not a credential.
     secret_ref: str | None
     created_at: float
+    # Resolved from policy on every read rather than stored, so it cannot drift
+    # from what is actually enforced.
+    allowed_prefixes: list[str] = []
 
 
 class RegisterDirectoryRequest(BaseModel):
@@ -48,8 +51,10 @@ class RegisterDirectoryRequest(BaseModel):
     path: str = Field(default="", max_length=1024)
 
 
-def _public_datasource(row: dict) -> DatasourceOut:
-    return DatasourceOut(**{k: row[k] for k in DatasourceOut.model_fields})
+def _public_datasource(row: dict, user_id: str) -> DatasourceOut:
+    fields = {k: row[k] for k in DatasourceOut.model_fields if k in row}
+    fields["allowed_prefixes"] = policy.allowed_prefixes(user_id)
+    return DatasourceOut(**fields)
 
 
 def _load_datasource_or_404(user_id: str, datasource_id: str) -> dict:
@@ -78,9 +83,6 @@ def connect_s3(
         "bucket": req.bucket,
         "endpoint_url": req.endpoint_url or os.getenv("S3_ENDPOINT_URL"),
         "region": req.region,
-        # From server-side policy, not the request. A tenant naming their own
-        # scope would make the scope meaningless.
-        "allowed_prefixes": policy.allowed_prefixes(user_id),
     }
     probe = {
         "kind": "s3",
@@ -104,12 +106,12 @@ def connect_s3(
     response.status_code = (
         status.HTTP_201_CREATED if was_created else status.HTTP_200_OK
     )
-    return _public_datasource(datasource)
+    return _public_datasource(datasource, user_id)
 
 
 @router.get("/datasources", response_model=list[DatasourceOut])
 def list_datasources(user_id: str = CurrentUser) -> list[DatasourceOut]:
-    return [_public_datasource(d) for d in repo.list_datasources(user_id)]
+    return [_public_datasource(d, user_id) for d in repo.list_datasources(user_id)]
 
 
 @router.get("/datasources/{datasource_id}/browse")

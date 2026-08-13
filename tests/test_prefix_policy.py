@@ -134,8 +134,13 @@ def test_browsing_into_another_tenants_prefix_is_refused(client):
     assert resp.status_code == 403
 
 
-def test_scope_is_recorded_on_the_datasource_not_taken_from_the_request(client):
-    """A tenant asking for a wider scope gets the provisioned one anyway."""
+def test_scope_comes_from_policy_not_from_the_request(client):
+    """A tenant asking for a wider scope gets the provisioned one anyway.
+
+    Reported rather than stored, so it cannot drift from what is enforced -
+    a datasource created before a policy change would otherwise advertise a
+    scope nobody is applying.
+    """
     headers = _auth(client, "alice")
     resp = client.post(
         "/api/v1/datasources",
@@ -143,21 +148,22 @@ def test_scope_is_recorded_on_the_datasource_not_taken_from_the_request(client):
         headers=headers,
     )
     assert resp.status_code in (200, 201)
-    assert resp.json()["config"]["allowed_prefixes"] == [
+    assert resp.json()["allowed_prefixes"] == [
         "library/",
         "library-archive/",
         "alice-private/",
     ]
+    assert "allowed_prefixes" not in resp.json()["config"], "scope is not stored"
 
 
 def test_each_tenant_gets_their_own_scope(client):
     for user_id in ("alice", "bob"):
         headers = _auth(client, user_id)
         ds = _connect(client, headers)
-        config = client.get("/api/v1/datasources", headers=headers).json()[0]["config"]
-        assert f"{user_id}-private/" in config["allowed_prefixes"]
+        seen = client.get("/api/v1/datasources", headers=headers).json()[0]
+        assert f"{user_id}-private/" in seen["allowed_prefixes"]
         other = "bob" if user_id == "alice" else "alice"
-        assert f"{other}-private/" not in config["allowed_prefixes"]
+        assert f"{other}-private/" not in seen["allowed_prefixes"]
         assert client.post(
             "/api/v1/directories",
             json={"datasource_id": ds, "path": f"{other}-private/"},
