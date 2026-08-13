@@ -1,17 +1,11 @@
-"""Every query in the system, with tenant scope built into the signatures.
+"""Every query in the system.
 
-The rule this module exists to enforce: **any function that touches tenant data
-takes user_id as its first argument**, and that user_id reaches the WHERE
-clause. There are no unscoped reads of files, directories, datasources, or
-chunks. A reviewer should be able to check the isolation claim by reading the
-function signatures below rather than by auditing call sites.
+Rule: anything touching tenant data takes user_id first, and it reaches the
+WHERE clause. The isolation claim is checkable by reading signatures here.
 
-Three tables are deliberately global and take no user_id - `blobs`, `chunks`,
-and `embedding_cache`. They are keyed by the sha256 of content. Reaching them
-requires already holding the bytes that hash to that key, and nothing in them
-records who else holds the same bytes. Text resolution for answers still goes
-through get_chunk_texts(), which joins user_blobs, so possession is checked on
-the read path even though the storage is shared.
+blobs, chunks, and embedding_cache are global and take no user_id - they are
+keyed by content hash. Answer text still resolves through get_chunk_texts(),
+which joins user_blobs, so possession is checked on the read path.
 """
 from __future__ import annotations
 
@@ -55,11 +49,6 @@ def ensure_user(user_id: str, email: str) -> dict[str, Any]:
         return _row(c.execute("SELECT * FROM users WHERE id = ?", (user_id,)))
 
 
-def get_user(user_id: str) -> dict[str, Any] | None:
-    with db.connect() as c:
-        return _row(c.execute("SELECT * FROM users WHERE id = ?", (user_id,)))
-
-
 # --- datasources ------------------------------------------------------------
 
 
@@ -68,15 +57,9 @@ def create_datasource(
 ) -> tuple[dict[str, Any], bool]:
     """Register a datasource. Returns (datasource, created).
 
-    `config` holds non-secret settings only; the credential is referenced by
-    name and resolved from the environment at use time, so it never enters the
-    database or an API response.
-
-    Connecting the same bucket twice is not an error and does not make a second
-    row - the unique index on (user_id, kind, bucket, endpoint) makes the second
-    attempt a no-op that returns the existing row. Same treatment as
-    create_directory, because it is the same situation: a user clicking a button
-    twice should not fork their configuration.
+    config holds non-secret settings only; the credential is referenced by name
+    and resolved from the environment at use time. Connecting the same bucket
+    twice returns the existing row rather than forking the configuration.
     """
     with db.connect() as c:
         cur = c.execute(
@@ -115,8 +98,7 @@ def list_datasources(user_id: str) -> list[dict[str, Any]]:
 
 
 def get_datasource(user_id: str, datasource_id: str) -> dict[str, Any] | None:
-    """Scoped by user_id as well as id: a datasource id belonging to another
-    user reads as absent rather than as forbidden."""
+    """Another user's id reads as absent, not forbidden."""
     with db.connect() as c:
         row = _row(
             c.execute(
@@ -138,12 +120,8 @@ def _hydrate_datasource(row: dict[str, Any]) -> dict[str, Any]:
 def create_directory(
     user_id: str, datasource_id: str, path: str
 ) -> tuple[dict[str, Any], bool]:
-    """Register a directory for syncing. Returns (directory, created).
-
-    Re-registering the same path is not an error: the unique constraint on
-    (user_id, datasource_id, path) makes it a no-op that returns the existing
-    row, so a double submit cannot fork a directory into two.
-    """
+    """Register a directory. Returns (directory, created); re-registering the
+    same path returns the existing row."""
     with db.connect() as c:
         cur = c.execute(
             "INSERT INTO directories "
@@ -262,7 +240,7 @@ def remove_user_blob(user_id: str, sha256: str) -> None:
 
 
 def replace_chunks(sha256: str, texts: list[str]) -> None:
-    """Store the chunking of a blob, replacing any previous chunking of it."""
+    """Store a blob's chunks, replacing any previous chunking."""
     with db.connect() as c:
         c.execute("DELETE FROM chunks WHERE sha256 = ?", (sha256,))
         c.executemany(
@@ -283,17 +261,11 @@ def get_chunks(sha256: str) -> list[dict[str, Any]]:
 
 
 def get_chunk_texts(user_id: str, chunk_ids: Iterable[str]) -> dict[str, str]:
-    """Resolve chunk ids to text, for this user only.
+    """Resolve chunk ids ("{sha256}:{ordinal}") to text, for this user only.
 
-    This is isolation mechanism four. Retrieval hands back ids; text is only
-    ever produced here, and only for chunks whose content the user actually
-    possesses (the user_blobs join). A vector that somehow surfaced from
-    another tenant's collection resolves to nothing and cannot become visible
-    text in an answer.
-
-    Chunk id format is '{sha256}:{ordinal}'. Unknown or unpossessed ids are
-    omitted from the result rather than raising, so a partially stale index
-    degrades to fewer citations instead of an error.
+    Isolation mechanism four: retrieval returns ids, text is only produced here
+    and only for content the user possesses. A vector surfacing from another
+    tenant resolves to nothing. Unknown ids are skipped rather than raising.
     """
     parsed: list[tuple[str, int]] = []
     for cid in chunk_ids:
@@ -327,12 +299,8 @@ def get_chunk_texts(user_id: str, chunk_ids: Iterable[str]) -> dict[str, str]:
 
 
 def get_user_chunks(user_id: str) -> list[dict[str, Any]]:
-    """Every chunk this user possesses, for building their sparse index.
-
-    Scoped through user_blobs, so the BM25 half of hybrid retrieval is built
-    from exactly the same content the dense half can see. A sparse index built
-    over all chunks globally would be a leak with extra steps.
-    """
+    """Every chunk this user possesses, for their sparse index. Scoped through
+    user_blobs - a global BM25 index would be a leak with extra steps."""
     with db.connect() as c:
         rows = _rows(
             c.execute(
@@ -348,13 +316,9 @@ def get_user_chunks(user_id: str) -> list[dict[str, Any]]:
 
 
 def get_attribution(user_id: str, sha256s: Iterable[str]) -> dict[str, dict[str, Any]]:
-    """Map content back to what this user calls it, for citations.
-
-    Attribution is per-user by construction: the same bytes cite as a different
-    filename for a different user, and neither can see the other's naming. When
-    a user holds the same content under several names, the first live row wins
-    - any of them is a correct citation for that content.
-    """
+    """Map content back to what this user calls it, for citations. When the
+    same bytes sit under several names the first live row wins - any is
+    correct."""
     shas = [s for s in dict.fromkeys(sha256s) if s]
     if not shas:
         return {}
@@ -384,7 +348,7 @@ def get_attribution(user_id: str, sha256s: Iterable[str]) -> dict[str, dict[str,
 def get_cached_vectors(
     sha256: str, embedding_version: str
 ) -> dict[int, bytes]:
-    """Cached vectors for a blob's chunks, as {ordinal: raw float32 bytes}."""
+    """{ordinal: raw float32 bytes} for this blob at this version."""
     with db.connect() as c:
         rows = _rows(
             c.execute(
@@ -444,12 +408,8 @@ def upsert_file(
     state: str,
     error: str | None = None,
 ) -> dict[str, Any]:
-    """Record what this user saw at this provider key.
-
-    Clears deleted_at on write, so a file that reappears at the source is
-    revived through the same path that first created it rather than through a
-    special case.
-    """
+    """Record what this user saw at this provider key. Clears deleted_at, so a
+    reappearing file revives through the same path that created it."""
     now = _now()
     with db.connect() as c:
         c.execute(
@@ -496,9 +456,8 @@ def get_file(user_id: str, file_id: str) -> dict[str, Any] | None:
 
 
 def soft_delete_file(user_id: str, file_id: str) -> dict[str, Any] | None:
-    """Soft delete, returning the row as it was. Attribution is retained; only
-    its visibility changes. Dropping the content's vectors is a separate,
-    conditional step - see user_still_references_blob."""
+    """Soft delete: attribution is retained, only visibility changes. Dropping
+    vectors is a separate step - see user_still_references_blob."""
     now = _now()
     with db.connect() as c:
         c.execute(
@@ -512,12 +471,8 @@ def soft_delete_file(user_id: str, file_id: str) -> dict[str, Any] | None:
 def user_still_references_blob(
     user_id: str, sha256: str, excluding_file_id: str | None = None
 ) -> bool:
-    """Does this user hold any other live file row for these bytes?
-
-    The guard on removal. The same content can arrive under several names or in
-    several directories, so vectors may only be dropped once the last live
-    reference for that user is gone.
-    """
+    """Guard on removal: the same content can arrive under several names, so
+    vectors may only be dropped once the last live reference is gone."""
     sql = (
         "SELECT 1 FROM files WHERE user_id = ? AND sha256 = ? "
         "AND deleted_at IS NULL"
@@ -548,16 +503,13 @@ def list_live_provider_keys(user_id: str, directory_id: str) -> list[dict[str, A
 def enqueue_run(user_id: str, directory_id: str) -> tuple[dict[str, Any], bool]:
     """Queue a sync. Returns (run, created).
 
-    Double-click protection is the partial unique index on
-    sync_runs(directory_id) WHERE state IN ('queued','running'), not a check
-    here: two concurrent POSTs both attempt the insert, the database rejects
-    the loser, and that caller is handed the run already in flight. Checking
-    first and inserting second would leave a race between the two statements.
+    Double-click protection is the partial unique index, not a check here: both
+    POSTs attempt the insert and the loser is handed the run already in flight.
+    Check-then-insert would leave a race between the two statements.
     """
-    # Bounded retry rather than recursion: the losing insert can find no active
-    # run if the winner finished in between, and that deserves one more attempt
-    # rather than a phantom "already in progress". A pathological interleaving
-    # must terminate, so the loop is capped instead of calling itself.
+    # The loser finds no active run if the winner finished in between, which
+    # deserves a retry rather than a phantom "already in progress". Capped so a
+    # pathological interleaving terminates.
     for _attempt in range(3):
         try:
             with db.connect() as c:
@@ -612,12 +564,11 @@ def list_runs(user_id: str, directory_id: str, limit: int = 10) -> list[dict[str
 
 
 def claim_next_run() -> dict[str, Any] | None:
-    """Claim one queued run for execution. Worker-side, so no user_id: the
-    worker serves every tenant and reads the owner off the claimed row.
+    """Claim one queued run. Worker-side, so no user_id - it serves every
+    tenant and reads the owner off the claimed row.
 
-    A single conditional UPDATE inside an IMMEDIATE transaction. The WHERE
-    clause carries the precondition, so a second claimant updates zero rows
-    rather than stealing a run already taken.
+    One conditional UPDATE in an IMMEDIATE transaction; the precondition lives
+    in the WHERE clause, so a second claimant updates zero rows.
     """
     now = _now()
     with db.transaction() as c:
@@ -650,9 +601,8 @@ def heartbeat_run(run_id: str) -> None:
 
 
 def bump_run_counters(run_id: str, **deltas: int) -> None:
-    """Increment counters in place, so progress is read from the database
-    rather than from the worker's memory. A UI refresh mid-run shows real
-    progress, and a crashed worker leaves an honest partial count behind."""
+    """Increment counters in place, so progress is read from the database and a
+    refresh mid-run shows real numbers."""
     allowed = {
         "files_seen", "files_new", "files_skipped", "files_failed", "files_deleted",
         "chunks_embedded", "chunks_reused", "bytes_downloaded",
@@ -682,11 +632,8 @@ def finish_run(run_id: str, state: str, error: str | None = None) -> dict[str, A
 
 
 def reclaim_dead_runs(timeout_sec: float) -> list[dict[str, Any]]:
-    """Fail running runs whose heartbeat has gone stale, freeing the directory.
-
-    Without this a worker killed mid-run would hold the partial unique index
-    entry forever and that directory could never be synced again.
-    """
+    """Fail runs whose heartbeat went stale, freeing the directory. Without
+    this a killed worker would hold the active-run slot forever."""
     cutoff = _now() - timeout_sec
     reclaimed: list[dict[str, Any]] = []
     with db.transaction() as c:
@@ -704,9 +651,7 @@ def reclaim_dead_runs(timeout_sec: float) -> list[dict[str, Any]]:
                 "WHERE id = ? AND state = 'running'",
                 ("worker died: heartbeat stale", _now(), run["id"]),
             )
-            # Re-read after the update. Returning the pre-update snapshot would
-            # hand callers rows still labelled 'running', which is exactly the
-            # thing this function just stopped being true.
+            # Re-read: the pre-update snapshot would still say "running".
             reclaimed.append(
                 dict(c.execute(
                     "SELECT * FROM sync_runs WHERE id = ?", (run["id"],)

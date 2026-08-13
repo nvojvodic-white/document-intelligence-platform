@@ -11,12 +11,10 @@ class ProviderError(Exception):
 
 @dataclass(frozen=True)
 class ListedObject:
-    """One object as the provider describes it, before anything is downloaded.
+    """One object as the provider describes it, pre-download.
 
-    etag / size / mtime together are the cheap-path fingerprint. When all three
-    still match the recorded file row, the object is unchanged and is never
-    downloaded - which is what makes a re-sync of an unchanged directory cost
-    one LIST call and nothing else.
+    etag/size/mtime together are the cheap-path fingerprint: all three matching
+    the recorded row means the object is never downloaded.
     """
 
     key: str

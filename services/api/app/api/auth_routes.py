@@ -1,9 +1,5 @@
-"""Dev login.
-
-Mints a token for one of the two fixed demo users. This is the piece a real
-deployment replaces with an identity provider; it is separated into its own
-router so that replacement touches one file.
-"""
+"""Dev login. Mints a token for one of the fixed demo users - the piece a real
+deployment swaps for an identity provider, kept in one file so it can be."""
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -30,10 +26,8 @@ class TokenResponse(BaseModel):
 def dev_login(req: DevLoginRequest) -> TokenResponse:
     """Issue a signed token for a known demo user.
 
-    The user_id in this request body is a *login* choice, not an identity
-    assertion - it is checked against the fixed allowlist and can only produce
-    a token for a user that already exists. Every other endpoint ignores body
-    fields entirely and reads identity from the verified token.
+    The user_id here is a login choice checked against a fixed allowlist, not
+    an identity assertion; every other endpoint reads identity from the token.
     """
     try:
         token, expires_at = mint_token(req.user_id)
@@ -50,12 +44,11 @@ def dev_login(req: DevLoginRequest) -> TokenResponse:
 
 @router.get("/me")
 def me(user_id: str = CurrentUser) -> dict:
-    """Echo the identity the server derived from the token. Useful in the
-    walkthrough to show that switching users switches what is visible."""
+    """The identity the server derived from the token."""
     return {"user_id": user_id, "email": DEV_USERS[user_id]}
 
 
 @router.get("/dev-users")
 def dev_users() -> dict:
-    """The demo tenants the UI offers as login buttons."""
+    """The demo tenants the UI offers as login options."""
     return {"users": [{"user_id": u, "email": e} for u, e in DEV_USERS.items()]}

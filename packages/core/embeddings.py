@@ -1,20 +1,14 @@
-"""Embedding providers.
+"""Embedding providers, selected by EMBEDDING_PROVIDER.
 
-Two, selected by EMBEDDING_PROVIDER:
+  openai  (default) text-embedding-3-small. Chat goes to Claude, so this is a
+          second provider and a second key.
+  hash    Deterministic offline embedder for tests: feature-hashed token
+          n-grams, L2 normalised. Identical documents embed identically, which
+          is all the isolation tests need.
 
-  openai  (default) text-embedding-3-small. OpenRouter has no embeddings API,
-          so this is the one call that does not go through it. Stated in the
-          README rather than glossed - a clean clone needs two keys.
-
-  hash    A deterministic offline embedder for tests. Feature-hashed character
-          n-grams, L2 normalised. It is a real function of the text, so
-          identical documents embed identically and lexically similar ones
-          score closer, which is all the isolation tests need.
-
-`hash` is opt-in and never a fallback. If the OpenAI key is missing the openai
-provider raises instead of quietly degrading: a platform that silently swaps
-its embedding model would return plausible, badly-grounded answers, and the
-vectors it wrote would be poisoned under a version string claiming otherwise.
+`hash` is opt-in and never a fallback. A missing key raises rather than quietly
+degrading - silently swapping models would write poisoned vectors under a
+version string claiming otherwise.
 """
 from __future__ import annotations
 
@@ -46,16 +40,15 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 
 
 def embed_query(text: str) -> list[float]:
-    """Embed a query. Must use the same provider and model as embed_texts, or
-    query vectors and stored vectors are not comparable."""
+    """Embed a query. Same provider as embed_texts, or the vectors are not
+    comparable."""
     return embed_texts([text])[0]
 
 
 def dimension() -> int:
     if provider_name() == "hash":
         return _HASH_DIM
-    # text-embedding-3-small. Only used to record `dim` alongside cached
-    # vectors; the true length is taken from the vectors themselves.
+    # Only used to record `dim`; the real length comes from the vectors.
     return 1536
 
 
@@ -68,10 +61,9 @@ def _openai_embed(texts: list[str]) -> list[list[float]]:
     global _client
     if not os.getenv("OPENAI_API_KEY"):
         raise EmbeddingError(
-            "OPENAI_API_KEY is not set. Embeddings do not go through "
-            "OpenRouter (it has no embeddings API), so this key is required "
-            "in addition to OPENROUTER_API_KEY. Set EMBEDDING_PROVIDER=hash "
-            "only for tests."
+            "OPENAI_API_KEY is not set. Embeddings use OpenAI while chat uses "
+            "Anthropic, so both keys are required. EMBEDDING_PROVIDER=hash is "
+            "for tests only."
         )
     if _client is None:
         from langchain_openai import OpenAIEmbeddings
@@ -84,7 +76,7 @@ def _openai_embed(texts: list[str]) -> list[list[float]]:
 
 
 def _hash_embed(text: str) -> list[float]:
-    """Feature-hash tokens and their bigrams into a fixed-dimension vector."""
+    """Feature-hash tokens and bigrams into a fixed-size vector."""
     vec = [0.0] * _HASH_DIM
     tokens = _TOKEN_RE.findall(text.lower())
     features = tokens + [
@@ -93,13 +85,12 @@ def _hash_embed(text: str) -> list[float]:
     for feature in features:
         digest = hashlib.sha256(feature.encode("utf-8")).digest()
         index = int.from_bytes(digest[:4], "big") % _HASH_DIM
-        # Sign from a separate byte so collisions cancel rather than compound.
+        # Sign from a separate byte so collisions cancel, not compound.
         vec[index] += 1.0 if digest[4] & 1 else -1.0
 
     norm = sum(v * v for v in vec) ** 0.5
     if norm == 0.0:
-        # An empty or token-free document. Return a unit vector rather than
-        # zeros: Chroma's cosine space cannot rank a zero vector.
+        # Cosine space cannot rank a zero vector.
         vec[0] = 1.0
         return vec
     return [v / norm for v in vec]

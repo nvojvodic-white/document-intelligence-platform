@@ -63,9 +63,6 @@ services:
       # Dev-login signing key. The whole trust boundary, so it is explicit
       # rather than left to the code default.
       - JWT_SECRET=${JWT_SECRET:-dev-secret-not-for-production}
-      # Local traces have nowhere to go now that Jaeger is gone; exporting to a
-      # dead collector logs an error per span.
-      - OTEL_SDK_DISABLED=true
     volumes:
       # One shared volume: SQLite, the Chroma collections, and the text store.
       # Both Python services mount it because the worker writes what the API
@@ -96,7 +93,6 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
-      - OTEL_SDK_DISABLED=true
     volumes:
       - platform-data:/data
     depends_on:

@@ -1,9 +1,8 @@
 """Datasources, browsing, directories, and sync triggering.
 
-Every handler here takes `user_id: str = CurrentUser` and passes it as the
-first argument to a repository call. No handler reads an owner from the request
-body or from a path segment - a datasource id belonging to someone else reads
-as 404, not 403, so ids do not leak existence.
+Every handler takes user_id from the verified token and passes it first to a
+repository call. Another user's id reads as 404, not 403, so ids do not leak
+existence.
 """
 from __future__ import annotations
 
@@ -29,7 +28,7 @@ class ConnectS3Request(BaseModel):
     bucket: str = Field(..., max_length=255)
     endpoint_url: str | None = Field(default=None, max_length=500)
     region: str = Field(default="us-east-1", max_length=64)
-    # The NAME of an environment variable holding the secret, never the secret.
+    # The name of an env var holding the secret, never the secret.
     secret_ref: str | None = Field(default=None, max_length=128)
 
 
@@ -38,7 +37,7 @@ class DatasourceOut(BaseModel):
     kind: str
     name: str
     config: dict
-    # secret_ref is echoed because it is a variable name, not a credential.
+    # Echoed because it is a variable name, not a credential.
     secret_ref: str | None
     created_at: float
 
@@ -68,14 +67,11 @@ def _load_datasource_or_404(user_id: str, datasource_id: str) -> dict:
 def connect_s3(
     req: ConnectS3Request, response: Response, user_id: str = CurrentUser
 ) -> DatasourceOut:
-    """Connect an S3 datasource, verifying reachability before recording it.
+    """Connect an S3 datasource, probing it before recording it, so a typo
+    fails here rather than as a sync failure ten minutes later.
 
-    The check happens first so a typo in the bucket name surfaces here rather
-    than as a failed sync run ten minutes later.
-
-    Connecting the same bucket again returns the existing datasource with 200
-    rather than creating a duplicate; a fresh connection is 201. The body is the
-    same shape either way, so a caller that ignores the status still behaves.
+    Re-connecting the same bucket returns the existing row with 200; a fresh
+    one is 201. Same body either way.
     """
     config = {
         "bucket": req.bucket,
@@ -116,11 +112,8 @@ def list_datasources(user_id: str = CurrentUser) -> list[DatasourceOut]:
 def browse(
     datasource_id: str, path: str = "", user_id: str = CurrentUser
 ) -> dict:
-    """List immediate child directories of `path`, one level at a time.
-
-    Browsing hits the provider live rather than a cached tree: the point of the
-    screen is to show what is actually there before a directory is registered.
-    """
+    """Immediate child directories of `path`. Hits the provider live - the
+    point is to show what is actually there before registering."""
     ds = _load_datasource_or_404(user_id, datasource_id)
     try:
         provider = get_provider(ds)
@@ -131,9 +124,8 @@ def browse(
             status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)
         ) from e
 
-    # Only the objects sitting directly at this level. list_objects is
-    # recursive, so without this the browser would show a directory's whole
-    # subtree as if it were its own contents.
+    # list_objects is recursive; without this the browser would show a whole
+    # subtree as one directory's contents.
     normalised = path.lstrip("/")
     if normalised and not normalised.endswith("/"):
         normalised += "/"
@@ -156,11 +148,8 @@ def browse(
 def register_directory(
     req: RegisterDirectoryRequest, user_id: str = CurrentUser
 ) -> dict:
-    """Register a directory for syncing.
-
-    Re-registering the same path returns the existing row with created=false
-    rather than erroring, so a double submit cannot fork one directory into two.
-    """
+    """Register a directory. Re-registering returns the existing row with
+    created=false, so a double submit cannot fork it into two."""
     _load_datasource_or_404(user_id, req.datasource_id)
     directory, created = repo.create_directory(user_id, req.datasource_id, req.path)
     return {"directory": directory, "created": created}
@@ -188,13 +177,8 @@ def list_directory_files(directory_id: str, user_id: str = CurrentUser) -> dict:
 
 @router.post("/directories/{directory_id}/sync", status_code=202)
 def trigger_sync(directory_id: str, user_id: str = CurrentUser) -> dict:
-    """Queue a sync run.
-
-    A second POST while a run is queued or running does not start a second run:
-    the partial unique index rejects it and the caller is handed the run
-    already in flight, with already_in_progress=true. The response is the same
-    shape either way so the UI has no special case.
-    """
+    """Queue a sync run. A second POST while one is in flight returns that run
+    with already_in_progress=true rather than starting another."""
     if repo.get_directory(user_id, directory_id) is None:
         raise HTTPException(status_code=404, detail="directory not found")
     run, created = repo.enqueue_run(user_id, directory_id)
@@ -210,9 +194,8 @@ def list_runs(directory_id: str, limit: int = 10, user_id: str = CurrentUser) ->
 
 @router.get("/runs/{run_id}")
 def get_run(run_id: str, user_id: str = CurrentUser) -> dict:
-    """Poll a run. Counters are read from the database, not from worker memory,
-    so a refresh mid-run shows real progress and a dead worker leaves an honest
-    partial count behind."""
+    """Poll a run. Counters come from the database, so a refresh mid-run shows
+    real progress and a dead worker leaves an honest partial count."""
     run = repo.get_run(user_id, run_id)
     if run is None:
         raise HTTPException(status_code=404, detail="run not found")
@@ -226,13 +209,10 @@ def get_run(run_id: str, user_id: str = CurrentUser) -> dict:
 def remove_file(file_id: str, user_id: str = CurrentUser) -> dict:
     """Remove a file from this user's knowledge base.
 
-    Soft deletes the attribution row, then drops the content's vectors from
-    this user's collection only if no other live row of theirs references the
-    same bytes. The blob, its chunks, and the embedding cache all persist -
-    they are content, not attribution. Answers stop citing the file at once.
-
-    This is the same code path the sync worker uses for a file that disappeared
-    at the source, so manual removal and source deletion cannot drift apart.
+    Soft deletes attribution, then drops vectors only if no other live row of
+    theirs references the same bytes. The blob and cache persist - content, not
+    attribution. Same rule the worker uses for a file deleted at the source, so
+    the two cannot drift apart.
     """
     existing = repo.get_file(user_id, file_id)
     if existing is None or existing.get("deleted_at"):

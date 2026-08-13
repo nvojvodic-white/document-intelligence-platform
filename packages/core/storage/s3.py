@@ -1,12 +1,8 @@
-"""S3 provider.
+"""S3 provider. Talks to LocalStack in compose and to real S3 unchanged - only
+the endpoint and credentials differ.
 
-Talks to LocalStack in compose and to real S3 unchanged - only the endpoint URL
-and credentials differ, which is the point of using S3 for the demo rather than
-a mock provider reading local files.
-
-Credentials are never stored in the database. `secret_ref` on the datasource
-row names an environment variable; it is resolved here, at use time, in the
-process that needs it.
+Credentials never touch the database: secret_ref names an environment variable,
+resolved here at use time.
 """
 from __future__ import annotations
 
@@ -36,13 +32,8 @@ class S3Provider:
     # --- credentials --------------------------------------------------------
 
     def _credentials(self) -> dict[str, str]:
-        """Resolve credentials by reference, from the environment.
-
-        A datasource row records the NAME of a credential, never its value, so
-        a database dump - or an API response that accidentally serialises a
-        datasource - carries no secret. When no ref is set, boto3's own chain
-        applies (instance role, shared config, ambient env).
-        """
+        """Resolve credentials by name from the environment, so a database dump
+        carries no secret. Without a ref, boto3's own chain applies."""
         if not self._secret_ref:
             return {}
         secret = os.getenv(self._secret_ref)
@@ -69,8 +60,7 @@ class S3Provider:
                 "s3",
                 endpoint_url=self.endpoint_url,
                 region_name=self.region,
-                # Path addressing: LocalStack does not serve virtual-host style
-                # bucket URLs on localhost.
+                # LocalStack does not serve virtual-host style bucket URLs.
                 config=Config(
                     s3={"addressing_style": "path"},
                     retries={"max_attempts": 3, "mode": "standard"},
@@ -90,11 +80,8 @@ class S3Provider:
             raise ProviderError(f"cannot reach bucket {self.bucket!r}: {e}") from e
 
     def list_directories(self, prefix: str = "") -> list[str]:
-        """Immediate child prefixes, for browsing one level at a time.
-
-        Uses Delimiter so a bucket with a large tree is not listed in full just
-        to render one level of a picker.
-        """
+        """Immediate child prefixes. Delimiter keeps a large bucket from being
+        listed in full just to render one level."""
         prefix = _normalise_prefix(prefix)
         try:
             paginator = self._get_client().get_paginator("list_objects_v2")
@@ -116,14 +103,14 @@ class S3Provider:
             for page in paginator.paginate(Bucket=self.bucket, Prefix=prefix):
                 for obj in page.get("Contents", []):
                     key = obj["Key"]
-                    # Directory placeholder objects, not documents.
+                    # Directory placeholders, not documents.
                     if key.endswith("/"):
                         continue
                     mtime = obj.get("LastModified")
                     out.append(
                         ListedObject(
                             key=key,
-                            # Quotes are part of the wire format, not the value.
+                            # Quotes are wire format, not value.
                             etag=(obj.get("ETag") or "").strip('"') or None,
                             size=obj.get("Size"),
                             mtime=mtime.timestamp() if mtime else None,
@@ -143,12 +130,10 @@ class S3Provider:
 
 
 def _normalise_prefix(prefix: str) -> str:
-    """Trim a leading slash and ensure a trailing one.
+    """Trim a leading slash, ensure a trailing one.
 
-    S3 keys have no leading slash, but people type paths with one. A prefix
-    that does not end in '/' would also match sibling keys by string prefix -
-    'alice/lo' would match 'alice/lore-backup/' - so registering a directory
-    could silently pull in a neighbour's objects.
+    Without the trailing slash a prefix matches siblings by string - 'alice/lo'
+    would match 'alice/lore-backup/' and pull in a neighbour's objects.
     """
     prefix = (prefix or "").lstrip("/")
     if prefix and not prefix.endswith("/"):

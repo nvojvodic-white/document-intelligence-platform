@@ -1,14 +1,11 @@
 """Token minting and verification.
 
-Dev login is a deliberate cut - no Clerk, no Ory. What is *not* cut is the
-property those services would provide: identity is carried in a signed token
-and is verified server-side before it is trusted. Swapping in a real IdP later
-means replacing verify_token() with their verifier; nothing downstream reads
-identity from anywhere else, so nothing downstream changes.
+Dev login is the cut; carrying identity in a verified signed token is not.
+Swapping in a real IdP means replacing verify_token() - nothing downstream
+reads identity from anywhere else.
 
-The two dev users are fixed. A login endpoint that mints a token for an
-arbitrary caller-supplied string would let anyone assume any tenant, which
-would make every isolation test in this repo meaningless.
+The dev user list is fixed. Minting tokens for arbitrary strings would let
+anyone assume any tenant and make every isolation test meaningless.
 """
 from __future__ import annotations
 
@@ -18,8 +15,7 @@ import jwt
 
 from core.config import JWT_ALGORITHM, JWT_SECRET, JWT_TTL_SEC
 
-# The demo tenants. Hardcoded on purpose: this is the allowlist that stops dev
-# login from being an impersonation endpoint.
+# The allowlist that stops dev login being an impersonation endpoint.
 DEV_USERS: dict[str, str] = {
     "alice": "alice@example.com",
     "bob": "bob@example.com",
@@ -46,10 +42,8 @@ def mint_token(user_id: str) -> tuple[str, int]:
 def verify_token(token: str) -> str:
     """Verify a token and return the user_id it asserts.
 
-    The algorithm is pinned to a single value rather than taken from the
-    token's own header. Accepting the header's choice is the classic JWT
-    confusion attack: a token claiming alg=none, or an RS256 key reused as an
-    HS256 secret, would otherwise verify.
+    The algorithm is pinned rather than read from the token header - accepting
+    the header's choice is the classic JWT confusion attack.
     """
     try:
         claims = jwt.decode(
@@ -65,8 +59,7 @@ def verify_token(token: str) -> str:
 
     user_id = claims.get("sub")
     if not isinstance(user_id, str) or user_id not in DEV_USERS:
-        # A validly signed token for a user we do not recognise is still a
-        # failure. If DEV_USERS shrinks, old tokens stop working - which is the
-        # behaviour you want from a revocation list.
+        # A valid signature for an unknown user is still a failure, so
+        # shrinking DEV_USERS revokes old tokens.
         raise AuthError("token subject is not a known user")
     return user_id

@@ -1,14 +1,8 @@
 """Text to chunks.
 
-Parameters and separators are carried over from the pre-fork retriever
-comparison rather than re-derived: 800/120 balances definitional coherence
-(entity definitions cluster in 200-400 char spans) against event-narrative
-continuity (paragraphs run ~600-1000 chars).
-
-Chunking is a pure function of the text, so it is cacheable by sha256 like
-extraction. CHUNKING_VERSION is folded into EMBEDDING_VERSION because chunks
-are what gets embedded - re-chunking necessarily invalidates vectors, and
-having one key for both stops the two caches from disagreeing.
+A pure function of the text, so cacheable by sha256 like extraction.
+CHUNKING_VERSION folds into EMBEDDING_VERSION because chunks are what gets
+embedded - one key for both stops the two caches disagreeing.
 """
 from __future__ import annotations
 
@@ -24,10 +18,6 @@ _splitter = RecursiveCharacterTextSplitter(
 
 
 def chunk_text(text: str) -> list[str]:
-    """Split extracted text into chunk texts, in document order.
-
-    The list index is the chunk's ordinal, and (sha256, ordinal) is its
-    identity everywhere else in the system - in the chunks table, in the
-    embedding cache, and as the vector id in each user's collection.
-    """
+    """Split text into chunks, in document order. The list index is the
+    ordinal, and (sha256, ordinal) is a chunk's identity everywhere else."""
     return [c for c in _splitter.split_text(text) if c.strip()]

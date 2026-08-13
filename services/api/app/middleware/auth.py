@@ -1,33 +1,34 @@
 import os
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-EXEMPT_PATHS = {"/health", "/metrics", "/docs", "/openapi.json", "/redoc"}
+EXEMPT_PATHS = {"/health", "/docs", "/openapi.json", "/redoc"}
 
 
 class APIKeyMiddleware(BaseHTTPMiddleware):
+    """Optional static gate in front of /api/*, on top of per-user tokens.
+
+    Disabled when PLATFORM_API_KEY is unset.
+    """
+
     async def dispatch(self, request: Request, call_next):
         if request.url.path in EXEMPT_PATHS:
             return await call_next(request)
 
-        # CORS preflight carries no credentials by design, so gating it would
-        # reject every cross-origin request before the real call is ever made.
-        # The CORS middleware sits outside this one and normally answers OPTIONS
-        # first; this is here so a reordering cannot silently break the UI.
+        # Preflight carries no credentials by design; gating it would break
+        # every cross-origin call before the real request is made.
         if request.method == "OPTIONS":
             return await call_next(request)
 
         platform_key = os.getenv("PLATFORM_API_KEY")
         if not platform_key:
-            # Auth disabled — no key configured
             return await call_next(request)
 
-        provided = request.headers.get("X-API-Key")
-        if provided != platform_key:
+        if request.headers.get("X-API-Key") != platform_key:
             return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid or missing API key"},
+                status_code=401, content={"detail": "Invalid or missing API key"}
             )
 
         return await call_next(request)

@@ -1,19 +1,12 @@
-"""Conversation memory store: SQLite, session-scoped, append-only with TTL eviction.
+"""Conversation memory: SQLite, session-scoped, append-only.
 
-Multi-turn support. Each conversation is a session_id; turns are stored
-append-only with a per-session monotonic turn_index. Reads use a sliding window
-(last N turns) for the synthesize prompt + coref rewriter. Old data ages out
-via prune_expired() as a maintenance task (no implicit deletion on writes).
+Turns carry a per-session monotonic index; reads take a sliding window for the
+synthesis prompt and the coref rewriter.
 
-Path is env-overridable (CONV_DB_PATH) so test scripts can use a throwaway DB,
-but it defaults to sitting beside the platform database under DATA_DIR rather
-than to a path relative to the working directory.
-
-That default matters: as a relative path it resolved to /app/data inside the
-container, which is the image's own writable layer and not the mounted volume,
-so every restart silently discarded the conversation history while the platform
-database beside it survived. Deriving from DATA_DIR keeps the two stores in the
-same place by construction.
+The path derives from DATA_DIR rather than the working directory. As a relative
+path it resolved to the container's own writable layer instead of the mounted
+volume, so restarts silently discarded history while the platform database
+beside it survived.
 """
 import os
 import sqlite3
@@ -25,9 +18,8 @@ from core.config import DATA_DIR
 
 DB_PATH = os.getenv("CONV_DB_PATH") or str(DATA_DIR / "conversations.db")
 
-# 30 days. Bounded growth without aggressive expiry. prune_expired() is an
-# explicit maintenance call, not implicit on every write, so this constant is
-# only consulted by callers who choose to prune.
+# Bounded growth. prune_expired() is an explicit maintenance call, never
+# implicit on write.
 DEFAULT_TTL_SEC = 30 * 24 * 3600
 
 
@@ -40,7 +32,7 @@ class Turn:
     timestamp: float
 
     def to_dict(self) -> dict:
-        # Shape the prompt + history wire format expects.
+        # The shape the prompt and history wire format expect.
         return {"role": self.role, "content": self.content}
 
 

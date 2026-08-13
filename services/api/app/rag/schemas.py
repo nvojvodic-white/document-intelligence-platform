@@ -15,11 +15,6 @@ class StreamQueryRequest(BaseModel):
     k: int = Field(default=4, ge=1, le=20)
 
 
-class HistoryTurn(BaseModel):
-    role: str = Field(..., pattern="^(user|assistant)$")
-    content: str = Field(..., max_length=10000)
-
-
 class Source(BaseModel):
     """A citation back to the file it came from, as this user names it.
 

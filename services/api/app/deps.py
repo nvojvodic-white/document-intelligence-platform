@@ -1,15 +1,9 @@
 """Request-scoped dependencies.
 
-current_user_id is the single place the API learns who is calling. It reads the
-Authorization header, verifies the signature, and returns the subject of the
-verified token.
-
-It does not accept a user id from a request body, a query parameter, a path
-segment, or an X-User-Id style header, and no route should either. Those are
-all attacker-controlled, and a platform whose isolation depends on the caller
-naming themselves honestly has no isolation at all. Every handler that touches
-tenant data takes this dependency and passes the result to a repository
-function as the first argument.
+current_user_id is the single place the API learns who is calling: it verifies
+the bearer token and returns its subject. It never accepts a user id from a
+body, query param, path segment, or header - a platform whose isolation depends
+on callers naming themselves honestly has none.
 """
 from fastapi import Depends, Header, HTTPException, status
 
@@ -35,5 +29,5 @@ def current_user_id(authorization: str = Header(default="")) -> str:
         ) from e
 
 
-# Alias that reads clearly at the call site: `user_id: str = CurrentUser`.
+# Reads as `user_id: str = CurrentUser` at the call site.
 CurrentUser = Depends(current_user_id)

@@ -82,6 +82,24 @@ holds would be censoring his data, not protecting hers. At the 12-document scale
 the same probe returns a flat *"I don't have any documents covering that"* — the crisper demo, but
 the weaker statement of the actual property.
 
+## API
+
+| Method | Path | |
+|---|---|---|
+| POST | `/api/v1/auth/dev-login` | Issue a token for a fixed demo user |
+| GET | `/api/v1/auth/me` | Identity derived from the token |
+| POST | `/api/v1/datasources` | Connect S3; 201 new, 200 if already connected |
+| GET | `/api/v1/datasources/{id}/browse?path=` | One level of the bucket, live |
+| POST | `/api/v1/directories` | Register a prefix for syncing |
+| POST | `/api/v1/directories/{id}/sync` | Queue a run; returns the one in flight if any |
+| GET | `/api/v1/runs/{id}` | Poll counters, read from the database |
+| DELETE | `/api/v1/files/{id}` | Soft delete, dropping vectors on last reference |
+| POST | `/api/v1/rag/agent_query` | Ask, non-streaming |
+| POST | `/api/v1/rag/agent_query_stream` | Ask, SSE, multi-turn |
+
+Every route except dev-login takes the bearer token and derives `user_id` from
+it. Another user's id returns 404.
+
 ## Architecture
 
 ```
@@ -180,3 +198,7 @@ That choice is not free:
   clean clone runs offline. The full 631-article scrape stays gitignored.
 - **RAGAS evaluation is cut.** It scored a global corpus that is now per-user, so the stored
   history would not be comparable anyway.
+- **Observability is removed, not disabled.** The Prometheus counters measured agent sessions that
+  no longer exist and the traces exported to a Jaeger deleted with the dashboards. Dropping both
+  took eleven dependencies out of the image; the right time to add it back is when there is
+  something to watch.

@@ -1,20 +1,19 @@
-"""Routing RAG agent built with LangGraph.
+"""Routing RAG agent, non-streaming path.
 
-Tests the thesis question: can measured query-conditional routing beat the
-best single retriever? The routing table is grounded in the retriever and
-RAGAS comparison evidence:
-  definitional -> semantic  (lifts recall on Mithril/Bombadil)
-  multi_hop    -> hyde      (precision lift on Smaug-class queries)
-  general      -> dense     (the strong baseline)
+Routes each question to a retriever rather than using one for everything:
 
-Graph:
-  START -> classify_query -> retrieve -> grade_documents -> decide_next
-                                ^                              |
-                                +--- rewrite_query <- [poor & attempt<1]
-                                                               |
-                                                      [good or attempt>=1]
-                                                               v
-                                                          synthesize -> END
+  definitional -> hybrid  (BM25 rescues rare entity names)
+  multi_hop    -> hyde    (question and answer sit apart in embedding space)
+  general      -> dense
+
+  START -> classify -> retrieve -> grade -> decide
+                          ^                   |
+                          +-- rewrite <- [poor & first attempt]
+                                              v
+                                        synthesize -> END
+
+The streaming path in graph_streaming.py reuses these prompts, LLMs, and
+decide_next so the two cannot drift apart.
 """
 import time
 from functools import wraps
@@ -33,11 +32,10 @@ from app.rag.retrieval.user_scoped import get_user_retriever
 
 
 def timed(name: str):
-    """Wrap a node so its returned trace delta gets a [timing] line appended.
+    """Append a [timing] line to a node's trace delta.
 
-    Important: the AgentState.trace field uses the `add` reducer, so each node
-    returns ONLY its delta (the lines it appends), never the whole running
-    trace. We extend the node's own trace delta with one timing line.
+    trace uses the `add` reducer, so a node returns only its own lines, never
+    the running trace.
     """
 
     def decorator(fn):

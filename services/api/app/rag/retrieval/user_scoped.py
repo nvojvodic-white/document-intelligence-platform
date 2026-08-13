@@ -1,24 +1,11 @@
 """Retrieval, scoped to one user's knowledge base.
 
-Replaces the pre-fork global retrievers. The old ones read a single Chroma
-collection and a single pickled chunk list built at deploy time; both are
-gone, because there is no such thing as "the corpus" any more - there is only
-some user's corpus.
+Two stages on purpose: search returns chunk ids and scores with no text, then
+get_chunk_texts() resolves them against user_blobs. A vector surfacing from
+another tenant resolves to nothing and drops out before reaching a prompt.
 
-The retrieval path is deliberately in two stages:
-
-  1. Search returns chunk ids and scores. No text.
-  2. get_chunk_texts(user_id, ids) resolves those ids to text, re-checking
-     possession against user_blobs.
-
-So a vector that somehow surfaced from another tenant's collection resolves to
-nothing and drops out before it can reach a prompt. Documents are only
-constructed for ids that survive step two.
-
-Three kinds survive the fork, none of which needs a second embedded index:
-  dense   the user's Chroma collection
-  sparse  BM25 built from the user's own chunk rows
-  hybrid  reciprocal-rank fusion of the two
+Three kinds, none needing a second embedded index: dense over the user's
+collection, sparse from BM25 over their chunk rows, hybrid fusing both.
 """
 from __future__ import annotations
 
@@ -37,9 +24,8 @@ from rank_bm25 import BM25Okapi
 from core import repositories as repo
 from core import vectors
 
-# Same preprocessing as the pre-fork sparse retriever: BM25's default is
-# text.split(), which makes "Gandalf?" != "Gandalf" and lets common words
-# dominate scoring.
+# BM25's default is text.split(), which makes "Gandalf?" != "Gandalf" and lets
+# common words dominate.
 _BM25_STOPWORDS = frozenset(
     "a an and are as at be by for from has he in is it its of on that the to "
     "was were will with who what when where which why how do does did this "
@@ -47,7 +33,7 @@ _BM25_STOPWORDS = frozenset(
 )
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
-# RRF constant. 60 is the value from the original paper and the pre-fork build.
+# 60 is the value from the RRF paper.
 _RRF_K = 60
 
 
@@ -62,12 +48,10 @@ _bm25_lock = threading.Lock()
 
 
 def _sparse_index(user_id: str):
-    """BM25 over this user's chunks, rebuilt when their chunk count changes.
+    """BM25 over this user's chunks, rebuilt when the chunk count changes.
 
-    Keyed on the row count rather than a timestamp: a sync that adds or removes
-    content changes the count, which is a cheap and sufficient invalidation
-    signal for a demo-sized corpus. A production build would want a version
-    column, and this is the line to change.
+    Count is a cheap invalidation signal at this size; a production build wants
+    a version column, and this is the line to change.
     """
     chunks = repo.get_user_chunks(user_id)
     with _bm25_lock:
@@ -103,8 +87,8 @@ def _sparse_hits(user_id: str, query: str, k: int) -> list[dict[str, Any]]:
 
 
 def _rrf(*rankings: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Reciprocal-rank fusion. Rank position only, so the dense retriever's
-    distances and BM25's unbounded scores never have to be made comparable."""
+    """Reciprocal-rank fusion: position only, so cosine distances and BM25's
+    unbounded scores never need to be made comparable."""
     scored: dict[str, float] = {}
     seen: dict[str, dict[str, Any]] = {}
     for ranking in rankings:
@@ -124,8 +108,7 @@ def retrieve(user_id: str, query: str, k: int = 4, kind: str = "dense") -> list[
     if kind == "sparse":
         hits = _sparse_hits(user_id, query, k)
     elif kind in ("hybrid", "hybrid_40_60"):
-        # Each side surfaces 2k candidates so fusion can rescue a chunk ranked
-        # low by one retriever, then the fused list is truncated to k.
+        # 2k per side so fusion can rescue a chunk one retriever ranked low.
         hits = _rrf(
             vectors.query(user_id, query, k=k * 2),
             _sparse_hits(user_id, query, k * 2),
@@ -139,9 +122,8 @@ def retrieve(user_id: str, query: str, k: int = 4, kind: str = "dense") -> list[
 def _to_documents(user_id: str, hits: list[dict[str, Any]]) -> list[Document]:
     """Resolve hits to documents, dropping anything this user cannot read.
 
-    Both lookups are user-scoped. A hit whose text does not resolve is silently
-    dropped rather than rendered as an empty citation: fewer citations is the
-    correct degradation, a blank one is not.
+    A hit whose text does not resolve is dropped rather than rendered as a
+    blank citation - fewer citations is the right degradation.
     """
     if not hits:
         return []
@@ -161,8 +143,7 @@ def _to_documents(user_id: str, hits: list[dict[str, Any]]) -> list[Document]:
             Document(
                 page_content=text,
                 metadata={
-                    # Citations point at the source file, which is what the
-                    # user recognises - not at the sha256 that identifies it.
+                    # Cite the file the user recognises, not the sha256.
                     "title": provider_key.rsplit("/", 1)[-1] or "unknown",
                     "source": provider_key or "unknown",
                     "url": "",
@@ -177,12 +158,8 @@ def _to_documents(user_id: str, hits: list[dict[str, Any]]) -> list[Document]:
 
 
 class UserScopedRetriever(BaseRetriever):
-    """LangChain adapter, so the inherited graph keeps working unchanged.
-
-    The user_id is bound when the retriever is constructed, from the verified
-    token. It is never taken from the query, so there is no way to phrase a
-    question that widens the search.
-    """
+    """LangChain adapter. user_id is bound at construction from the verified
+    token, never taken from the query, so no phrasing widens the search."""
 
     user_id: str
     k: int = 4
@@ -196,17 +173,15 @@ class UserScopedRetriever(BaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun
     ) -> list[Document]:
-        # Chroma's query and BM25 scoring are both CPU-bound and fast at this
-        # corpus size, so running them inline is simpler than a thread hop and
-        # does not hold the loop for long.
+        # Both are CPU-bound and fast here, so inline beats a thread hop.
         return retrieve(self.user_id, query, self.k, self.kind)
 
 
 def get_user_retriever(
     user_id: str, k: int = 4, kind: str = "dense"
 ) -> UserScopedRetriever:
-    """The only way to build a retriever. Takes user_id first, and there is no
-    variant that omits it."""
+    """The only way to build a retriever - there is no variant without a
+    user_id."""
     if not user_id:
         raise ValueError("retrieval requires a user_id")
     return UserScopedRetriever(user_id=user_id, k=k, kind=kind)

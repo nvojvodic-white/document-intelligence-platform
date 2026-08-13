@@ -1,14 +1,9 @@
 """Bytes to text.
 
-Deliberately small. The corpus is markdown and plain text, so extraction is a
-decode plus a light normalisation, and adding PDF/DOCX parsing would have cost
-an hour to serve documents this build does not have. The seam is here rather
-than the capability: extract() dispatches on the key's suffix, so a new type is
-a new branch and a bump of EXTRACTION_VERSION.
-
-Unsupported types raise ExtractionError, which the sync worker records as a
-per-file failure. The run ends `partial` and the other files still index -
-one bad file does not abort a sync.
+Markdown and plain text only. The seam is here rather than the capability:
+extract() dispatches on suffix, so a new type is a branch plus a bump of
+EXTRACTION_VERSION. Unsupported types raise ExtractionError, which the worker
+records as a per-file failure rather than aborting the run.
 """
 from __future__ import annotations
 
@@ -24,13 +19,8 @@ class ExtractionError(Exception):
 
 
 def extract(provider_key: str, data: bytes) -> str:
-    """Extract text from an object's raw bytes.
-
-    provider_key is used only to pick a parser. The text returned depends on
-    the bytes alone, which is what makes extraction cacheable by sha256 across
-    users - the same bytes yield the same text regardless of what anyone
-    named the file.
-    """
+    """Extract text. provider_key only picks the parser - the result depends on
+    the bytes alone, which is what makes extraction cacheable by sha256."""
     suffix = _suffix(provider_key)
     if suffix not in SUPPORTED_SUFFIXES:
         raise ExtractionError(
@@ -42,9 +32,8 @@ def extract(provider_key: str, data: bytes) -> str:
     except UnicodeDecodeError as e:
         raise ExtractionError(f"not valid UTF-8: {e}") from e
 
-    # Normalise line endings so a CRLF copy of a document chunks identically to
-    # its LF twin. Their bytes differ, so they are correctly two blobs, but
-    # their extracted text should not differ in ways that change retrieval.
+    # A CRLF copy is correctly a different blob, but its text should chunk
+    # identically to its LF twin.
     text = text.replace("\r\n", "\n").replace("\r", "\n").strip()
     if not text:
         raise ExtractionError("document is empty after extraction")

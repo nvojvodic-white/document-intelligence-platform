@@ -1,9 +1,0 @@
-# CVE-2026-23949: jaraco.context vendored inside setuptools/_vendor/
-# Not exploitable at runtime — only relevant during package building.
-# Our application does not process tar archives via this code path.
-CVE-2026-23949
-
-# CVE-2026-24049: wheel vendored inside setuptools/_vendor/
-# Not exploitable at runtime — only relevant when setuptools builds wheels.
-# The standalone wheel package (0.46.3) is clean.
-CVE-2026-24049
