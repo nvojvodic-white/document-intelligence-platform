@@ -35,6 +35,7 @@ build, the seed uploads 2,312 objects, and the whole walkthrough below runs with
 | `JWT_SECRET` | recommended | Signs dev-login tokens. Identity is read from the verified token, so this is the whole trust boundary. |
 | `PLATFORM_API_KEY` | no | Optional static gate in front of `/api/*`, on top of per-user tokens. |
 | `EMBEDDING_PROVIDER` | no | `openai` (default) or `hash`. **`hash` is a deterministic offline embedder for tests only.** |
+| `DATASOURCE_PREFIXES` | no | Which prefixes a tenant may register. `{user_id}` expands per tenant; empty means unrestricted. |
 
 Two providers, because they do two different things: chat completions go to Claude, embeddings go
 to OpenAI. There is no single vendor here that does both well, so the environment needs both keys.
@@ -158,6 +159,13 @@ Four independent mechanisms, because each is a single point of failure alone:
 4. **Retrieval returns chunk ids, not text.** Text is resolved by `get_chunk_texts(user_id, ids)`,
    which joins `user_blobs`. A vector that somehow surfaced from another tenant resolves to nothing
    and is dropped before it can reach a prompt.
+
+Separately, **datasource scope** (`DATASOURCE_PREFIXES`) limits which prefixes a tenant may browse
+and register, applied server-side at connect time. This is a different boundary from the four above:
+those isolate knowledge bases from each other, while scope decides what a tenant may pull in to
+begin with. Without it, one demo bucket with prefixes named after their intended owner is a naming
+convention rather than a limit — alice could register `bob-private/`, and those documents would then
+legitimately be hers. Correct, and misleading in a system whose point is data safety.
 
 `tests/test_isolation.py` and `tests/test_api_isolation.py` assert this from both the repository
 layer and over HTTP with real bearer tokens.

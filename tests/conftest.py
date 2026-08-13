@@ -42,6 +42,9 @@ def core_env(tmp_path, monkeypatch):
     monkeypatch.setenv("TEXT_STORE_DIR", str(tmp_path / "text"))
     monkeypatch.setenv("EMBEDDING_PROVIDER", "hash")
     monkeypatch.setenv("JWT_SECRET", "test-secret")
+    # Unrestricted by default: the fixture corpus uses alice/ and bob/ prefixes
+    # that the production policy would refuse. test_prefix_policy opts back in.
+    monkeypatch.setenv("DATASOURCE_PREFIXES", "")
 
     # config caches paths at import; reload it and everything holding them.
     import core.config

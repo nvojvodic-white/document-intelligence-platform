@@ -11,6 +11,7 @@ import os
 from fastapi import APIRouter, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
+from core import policy
 from core import repositories as repo
 from core import vectors
 from core.storage import ProviderError, get_provider
@@ -77,6 +78,9 @@ def connect_s3(
         "bucket": req.bucket,
         "endpoint_url": req.endpoint_url or os.getenv("S3_ENDPOINT_URL"),
         "region": req.region,
+        # From server-side policy, not the request. A tenant naming their own
+        # scope would make the scope meaningless.
+        "allowed_prefixes": policy.allowed_prefixes(user_id),
     }
     probe = {
         "kind": "s3",
@@ -115,6 +119,10 @@ def browse(
     """Immediate child directories of `path`. Hits the provider live - the
     point is to show what is actually there before registering."""
     ds = _load_datasource_or_404(user_id, datasource_id)
+    allowed = policy.allowed_prefixes(user_id)
+    if not policy.may_browse(path, allowed):
+        raise HTTPException(status_code=403, detail=f"{path!r} is out of scope")
+
     try:
         provider = get_provider(ds)
         directories = provider.list_directories(path)
@@ -123,6 +131,14 @@ def browse(
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)
         ) from e
+
+    # Hide siblings outside the scope, so the tree only shows what could
+    # actually be registered.
+    directories = [d for d in directories if policy.may_browse(d, allowed)]
+    if not policy.may_register(path, allowed):
+        # An ancestor of an allowed prefix: navigable, but its loose objects
+        # are not in scope.
+        objects = []
 
     # list_objects is recursive; without this the browser would show a whole
     # subtree as one directory's contents.
@@ -151,6 +167,17 @@ def register_directory(
     """Register a directory. Re-registering returns the existing row with
     created=false, so a double submit cannot fork it into two."""
     _load_datasource_or_404(user_id, req.datasource_id)
+
+    allowed = policy.allowed_prefixes(user_id)
+    if not policy.may_register(req.path, allowed):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                f"{req.path!r} is outside this datasource's scope "
+                f"({', '.join(allowed)})"
+            ),
+        )
+
     directory, created = repo.create_directory(user_id, req.datasource_id, req.path)
     return {"directory": directory, "created": created}
 
