@@ -24,7 +24,7 @@ Compose brings up five services: LocalStack (S3), a one-shot seed that uploads `
 into the bucket, the API, the sync worker, and the web UI.
 
 Verified from a clean build on Windows 11 + Docker Desktop 4.86 / engine 29.7.2: all four images
-build, the seed uploads 12 objects, and the whole walkthrough below runs with the numbers shown.
+build, the seed uploads 2,312 objects, and the whole walkthrough below runs with the numbers shown.
 
 ### Environment
 
@@ -108,7 +108,7 @@ services/api/       FastAPI: auth, datasources, directories, sync trigger, chat
 services/worker/    sync worker entrypoint
 packages/core/      hashing, extraction, chunking, embedding cache, repositories
 infra/              LocalStack seed
-corpus/tolkien/     committed corpus slice, uploaded into S3 at boot
+corpus/tolkien/     ~2,300 committed documents, uploaded into S3 at boot
 ```
 
 API and worker are two entrypoints over one codebase. They are split so a long sync cannot take
