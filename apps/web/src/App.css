@@ -114,10 +114,14 @@
   font-size: 15px;
 }
 
+/* Top padding is load bearing: it has to equal --sticky-top minus the 52px
+   topbar, or the sticky right column jumps down by the difference the moment
+   you scroll and stops lining up with the left. */
 .workspace {
+  --sticky-top: 68px;
   max-width: 1180px;
   margin: 0 auto;
-  padding: 0 1.5rem 5rem;
+  padding: 16px 1.5rem 5rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
   gap: 1.25rem;
@@ -139,7 +143,7 @@
 
 .col-side {
   position: sticky;
-  top: 68px;
+  top: var(--sticky-top);
 }
 
 @media (max-width: 940px) {
@@ -445,7 +449,7 @@ input:focus {
 .chat-panel {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 140px);
+  max-height: calc(100vh - var(--sticky-top) - 24px);
 }
 
 .chat {
